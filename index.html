@@ -89,6 +89,17 @@
     .tree-row--group { font-weight: 500; color: var(--color-text-2, #4E5969); }
     a.tree-link { color: var(--color-primary, #165DFF); text-decoration: none; }
     a.tree-link:hover { text-decoration: underline; }
+    a.tree-doc {
+      margin-left: 4px;
+      color: var(--color-text-3, #86909C);
+      font-weight: 400;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    a.tree-doc:hover {
+      color: var(--color-primary, #165DFF);
+      text-decoration: underline;
+    }
     .tree-children { position: relative; }
     .tree-children .tree-row { padding-left: 36px; }
     .tree-children .tree-children .tree-row { padding-left: 56px; }
@@ -115,7 +126,7 @@
         <li class="tree-node">
           <div class="tree-row tree-row--leaf">
             <span class="tree-spacer"></span>
-            <a class="tree-label tree-link" href="./login.html" target="_blank" rel="noopener noreferrer">登录</a>
+            <span class="tree-label"><a class="tree-link" href="./login.html" target="_blank" rel="noopener noreferrer">登录</a><a class="tree-doc" href="https://m0v1x0i131y.feishu.cn/wiki/TuQiwtqgkiCPZnkfhLIcaG3FnNl?from=from_copylink" target="_blank" rel="noopener noreferrer">（产品文档）</a></span>
           </div>
         </li>
         <li class="tree-node">
@@ -136,7 +147,7 @@
             <li class="tree-node">
               <div class="tree-row tree-row--leaf">
                 <span class="tree-spacer"></span>
-                <a class="tree-label tree-link" href="./menu.html" target="_blank" rel="noopener noreferrer">菜单管理</a>
+                <span class="tree-label"><a class="tree-link" href="./menu.html" target="_blank" rel="noopener noreferrer">菜单管理</a><a class="tree-doc" href="https://m0v1x0i131y.feishu.cn/wiki/VszewBw1vigYmrkCI7XcjTlQnBv?from=from_copylink" target="_blank" rel="noopener noreferrer">（产品文档）</a></span>
               </div>
             </li>
             <li class="tree-node" data-node>
@@ -144,7 +155,7 @@
                 <button class="tree-toggle" type="button" aria-label="折叠" data-toggle>
                   <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
                 </button>
-                <span class="tree-label">权限管理</span>
+                <span class="tree-label">权限管理<a class="tree-doc" href="https://m0v1x0i131y.feishu.cn/wiki/OBgJwrcLGiEh70kBxt9cu9j7nef?from=from_copylink" target="_blank" rel="noopener noreferrer">（产品文档）</a></span>
               </div>
               <ul class="tree-children">
                 <li class="tree-node">
