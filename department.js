@@ -64,24 +64,25 @@
 
   var GROUP_SEED = [
     { id: '1001', name: '全部账户', remark: '新增账户默认授权，请勿修改', status: '启用', scope: 'all', members: [1, 23], perms: [] },
-    { id: '1002', name: '开发测试', remark: '', status: '禁用', members: [2, 10, 18], perms: [2] },
-    { id: '1003', name: 'APP投放-一组', remark: '', status: '启用', members: [3, 11, 19], perms: [3, 11, 19] },
-    { id: '1004', name: 'APP投放-二组', remark: '', status: '启用', members: [1, 4, 20], perms: [4, 20] },
-    { id: '1005', name: 'APP投放-三组', remark: '', status: '启用', members: [12], perms: [12, 5] },
-    { id: '1006', name: 'TT投放-一组', remark: '', status: '启用', members: [6, 14, 22], perms: [6, 14] },
-    { id: '1007', name: 'TT投放-二组', remark: '', status: '启用', members: [7, 12, 15, 23], perms: [7, 15, 23] },
-    { id: '1008', name: 'TT投放-三组', remark: '', status: '启用', members: [8, 16, 24], perms: [8, 16] },
-    { id: '1009', name: '测试删除', remark: '', status: '启用', members: [], perms: [] }
+    { id: '1002', name: 'APP投放一组', remark: '', status: '启用', members: [3, 11, 19], perms: [3, 11, 19] },
+    { id: '1003', name: 'APP投放二组', remark: '', status: '启用', members: [1, 4, 20], perms: [4, 20] },
+    { id: '1004', name: 'APP投放三组', remark: '', status: '启用', members: [12], perms: [12, 5] },
+    { id: '1005', name: 'TT投放一组', remark: '', status: '启用', members: [6, 14, 22], perms: [6, 14] },
+    { id: '1006', name: 'TT投放二组', remark: '', status: '启用', members: [7, 12, 15, 23], perms: [7, 15, 23] },
+    { id: '1007', name: 'TT投放三组', remark: '', status: '启用', members: [8, 16, 24], perms: [8, 16] },
+    { id: '1008', name: '素材组', remark: '', status: '启用', members: [6, 13, 21], perms: [6, 13] },
+    { id: '1009', name: '开发测试', remark: '', status: '禁用', members: [], perms: [] }
   ];
 
   function buildRows() {
     return GROUP_SEED.map(function (item, i) {
+      var created = new Date(2026, 6, 2, 9, 0, 0);
+      created.setDate(created.getDate() + i * 4);
+      created.setMinutes((i * 5) % 60);
+      created.setSeconds((i * 17) % 60);
       var updated = new Date(2026, 7, 10, 11, 20, 6);
       updated.setMinutes(updated.getMinutes() - i * 41);
       updated.setSeconds((i * 9) % 60);
-      var created = new Date(updated.getTime());
-      created.setDate(created.getDate() - (20 + i * 4));
-      created.setHours(9, (i * 5) % 60, (i * 17) % 60);
       return {
         id: item.id,
         name: item.name,
@@ -122,14 +123,19 @@
     state.page = 1;
   }
 
+  function byCreatedDesc(a, b) {
+    if (a.createdAt === b.createdAt) return 0;
+    return a.createdAt < b.createdAt ? 1 : -1;
+  }
+
   function getFilteredRows() {
     var f = state.applied;
-    if (!f) return ALL_ROWS.slice();
-    return ALL_ROWS.filter(function (row) {
+    var rows = !f ? ALL_ROWS.slice() : ALL_ROWS.filter(function (row) {
       if (f.name && row.name.indexOf(f.name) === -1) return false;
       if (f.status && row.status !== f.status) return false;
       return true;
     });
+    return rows.sort(byCreatedDesc);
   }
 
   function findRow(id) {

@@ -254,7 +254,7 @@
         </span>
         <div class="confirm-modal__content">
           <h2 class="confirm-modal__title" id="impersonateTitle">扮演确认</h2>
-          <p class="confirm-modal__body" id="impersonateBody">确认扮演该用户吗？</p>
+          <p class="confirm-modal__body" id="impersonateBody">确认以 [ 用户 ] 的身份登录系统？</p>
         </div>
       </div>
       <div class="confirm-modal__footer">
@@ -314,10 +314,27 @@
   <div class="drawer-mask" id="logDrawer" aria-hidden="true">
     <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="logDrawerTitle">
       <div class="drawer__header">
-        <h2 class="drawer__title" id="logDrawerTitle">编辑日志</h2>
+        <h2 class="drawer__title" id="logDrawerTitle">日志</h2>
         <button class="drawer__close" type="button" id="logDrawerClose" aria-label="关闭">
           <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 2l8 8M10 2L2 10"/></svg>
         </button>
+      </div>
+      <div class="log-drawer__filter">
+        <div class="filter-item" id="logTypeWrap">
+          <button class="select-trigger" type="button" id="logTypeTrigger">
+            <span class="select-trigger__text" id="logTypeLabel">操作类型：<span class="muted">请选择</span></span>
+            <svg class="select-trigger__arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+          </button>
+          <button class="select-clear" type="button" id="logTypeClear" aria-label="清除">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l6 6M9 3L3 9"/></svg>
+          </button>
+          <div class="single-panel" id="logTypePanel">
+            <button class="single-option" type="button" data-value="扮演用户">扮演用户</button>
+            <button class="single-option" type="button" data-value="编辑角色">编辑角色</button>
+            <button class="single-option" type="button" data-value="编辑数据组">编辑数据组</button>
+            <button class="single-option" type="button" data-value="同步状态">同步状态</button>
+          </div>
+        </div>
       </div>
       <div class="drawer__body" id="logDrawerBody"></div>
       <div class="pagination drawer__pager" id="logPagination" hidden></div>

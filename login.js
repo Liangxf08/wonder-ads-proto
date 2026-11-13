@@ -2,6 +2,7 @@
   'use strict';
 
   var HOME = 'home.html';
+  var SESSION_PREFIX = 'delivery-session:';
   var view = 'chooser';
   var backView = 'chooser';
 
@@ -70,6 +71,7 @@
     var auth = event.target.closest('[data-auth]');
     if (!auth) return;
     if (auth.getAttribute('data-auth') === 'allow') {
+      if (window.name && window.name.indexOf(SESSION_PREFIX) === 0) window.name = '';
       window.location.href = HOME;
       return;
     }
@@ -79,6 +81,7 @@
   form.addEventListener('submit', function (event) {
     event.preventDefault();
     if (!validate()) return;
+    if (window.name && window.name.indexOf(SESSION_PREFIX) === 0) window.name = '';
     window.location.href = HOME;
   });
 

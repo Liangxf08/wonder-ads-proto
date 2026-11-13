@@ -10,6 +10,49 @@
   var TASK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 4.5-9 4.5-9-4.5L12 3z"/><path d="M3 12.5l9 4.5 9-4.5"/><path d="M3 17l9 4.5 9-4.5"/></svg>';
   var HELP_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>';
   var headerBound = false;
+  var SESSION_PREFIX = 'delivery-session:';
+  var DEFAULT_USER = {
+    nickname: '用户A',
+    account: 'ac123456789101112130'
+  };
+
+  function readImpersonation() {
+    if (!window.name || window.name.indexOf(SESSION_PREFIX) !== 0) return null;
+    try {
+      var parsed = JSON.parse(window.name.slice(SESSION_PREFIX.length));
+      if (parsed && parsed.nickname) return parsed;
+    } catch (err) {}
+    return null;
+  }
+
+  function sessionUser() {
+    var impersonated = readImpersonation();
+    if (!impersonated) {
+      return {
+        nickname: DEFAULT_USER.nickname,
+        account: DEFAULT_USER.account,
+        impersonating: false
+      };
+    }
+    return {
+      nickname: String(impersonated.nickname),
+      account: impersonated.account ? String(impersonated.account) : '',
+      impersonating: true
+    };
+  }
+
+  function startImpersonation(user) {
+    window.name = SESSION_PREFIX + JSON.stringify({
+      nickname: user && user.nickname ? user.nickname : '',
+      account: user && user.account ? user.account : ''
+    });
+    window.location.href = 'home.html';
+  }
+
+  function stopImpersonation() {
+    window.name = '';
+    window.location.reload();
+  }
 
   var pageKey = null;
   var keepCollapsed = false;
@@ -175,6 +218,8 @@
   }
 
   function renderHeader(page) {
+    var session = sessionUser();
+    var logoutLabel = session.impersonating ? '退出扮演' : '退出登录';
     var activeId = page.nav ? String(page.nav.id) : '';
     var nav = navs().map(function (item) {
       var href = pageHref(item);
@@ -197,18 +242,18 @@
           '<div class="user-menu">' +
             '<button class="user-chip" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="userPanel" aria-label="当前用户">' +
               '<span class="user-avatar" aria-hidden="true"></span>' +
-              '<span class="user-name">用户A</span>' +
+              '<span class="user-name">' + esc(session.nickname) + '</span>' +
               CHEVRON +
             '</button>' +
             '<div class="user-panel" id="userPanel" role="menu">' +
               '<div class="user-panel__profile">' +
                 '<span class="user-avatar" aria-hidden="true"></span>' +
                 '<div class="user-panel__meta">' +
-                  '<div class="user-panel__name">用户A</div>' +
-                  '<div class="user-panel__account">ac123456789101112130</div>' +
+                  '<div class="user-panel__name">' + esc(session.nickname) + '</div>' +
+                  '<div class="user-panel__account">' + esc(session.account) + '</div>' +
                 '</div>' +
               '</div>' +
-              '<button class="user-panel__logout" type="button" role="menuitem" data-logout>退出登录</button>' +
+              '<button class="user-panel__logout" type="button" role="menuitem" data-logout>' + logoutLabel + '</button>' +
             '</div>' +
           '</div>' +
         '</div>' +
@@ -315,6 +360,10 @@
       }
       if (event.target.closest('[data-logout]')) {
         event.preventDefault();
+        if (sessionUser().impersonating) {
+          stopImpersonation();
+          return;
+        }
         window.location.href = 'login.html';
         return;
       }
@@ -363,7 +412,10 @@
 
   global.DeliveryShell = {
     mount: mount,
-    refresh: function () { mount(pageKey); }
+    refresh: function () { mount(pageKey); },
+    startImpersonation: startImpersonation,
+    stopImpersonation: stopImpersonation,
+    currentUser: sessionUser
   };
 
   var bootScript = document.currentScript;

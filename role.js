@@ -107,12 +107,12 @@
           chainHas(chain, '31') || chainHas(chain, '42') || chainHas(chain, '49');
       });
     }
-    if (name === '海外素材' || name === '素材审核') {
+    if (name === '海外素材') {
       return leavesWhere(function (n, chain) {
         return chainHas(chain, '1') || chainHas(chain, '22') || chainHas(chain, '28') || chainHas(chain, '29');
       });
     }
-    if (name === '财务审计' || name === '数据分析') {
+    if (name === '财务审计' || name === '数据管理') {
       return leavesWhere(function (n, chain) {
         return chainHas(chain, '1') || chainHas(chain, '49');
       });
@@ -128,19 +128,19 @@
     { id: '1003', name: '海外投放', remark: '', users: userIds([1, 3, 9, 15]), status: '启用' },
     { id: '1004', name: '海外素材', remark: '', users: userIds([4, 8, 16, 23]), status: '启用' },
     { id: '1005', name: '财务审计', remark: '', users: userIds([5, 11, 15, 17, 24]), status: '启用' },
-    { id: '1006', name: '开发测试', remark: '', users: userIds([12, 19]), status: '禁用' },
-    { id: '1007', name: '数据分析', remark: '', users: [], status: '启用' },
-    { id: '1008', name: '素材审核', remark: '审核素材入库', users: userIds([6]), status: '启用' }
+    { id: '1006', name: '数据管理', remark: '', users: userIds([6, 14]), status: '启用' },
+    { id: '1007', name: '开发测试', remark: '', users: [], status: '禁用' }
   ];
 
   function buildRoles() {
     return ROLE_SEED.map(function (item, i) {
+      var created = new Date(2026, 6, 8, 10, 0, 0);
+      created.setDate(created.getDate() + i * 4);
+      created.setMinutes((i * 7) % 60);
+      created.setSeconds((i * 13) % 60);
       var updated = new Date(2026, 7, 10, 14, 20, 8);
       updated.setMinutes(updated.getMinutes() - i * 37);
       updated.setSeconds((i * 11) % 60);
-      var created = new Date(updated.getTime());
-      created.setDate(created.getDate() - (18 + i * 3));
-      created.setHours(10, (i * 7) % 60, (i * 13) % 60);
       return {
         id: item.id,
         name: item.name,
@@ -188,14 +188,19 @@
     state.page = 1;
   }
 
+  function byCreatedDesc(a, b) {
+    if (a.createdAt === b.createdAt) return 0;
+    return a.createdAt < b.createdAt ? 1 : -1;
+  }
+
   function getFilteredRows() {
     var f = state.applied;
-    if (!f) return ALL_ROWS.slice();
-    return ALL_ROWS.filter(function (row) {
+    var rows = !f ? ALL_ROWS.slice() : ALL_ROWS.filter(function (row) {
       if (f.name && row.name.indexOf(f.name) === -1) return false;
       if (f.status && row.status !== f.status) return false;
       return true;
     });
+    return rows.sort(byCreatedDesc);
   }
 
   function findRow(id) {

@@ -15,15 +15,24 @@
     '人力行政部', '财务部', '总经办', '商务+直播+漫剧', '海外发行', '国内发行',
     '苹果组', '无花果', '奇异果', '坚果组', '硕果组', '研发组', '发行组'
   ];
-  var ROLES = ['管理员', '海外负责人', '海外投放', '海外素材', '财务审计', '开发测试'];
+  var ROLES = ['管理员', '海外负责人', '海外投放', '海外素材', '财务审计', '数据管理', '开发测试'];
   var DATA_GROUPS = [
-    '全部账户', '开发测试', 'APP投放-一组', 'APP投放-二组', 'APP投放-三组',
-    'TT投放-一组', 'TT投放-二组', 'TT投放-三组'
+    '全部账户', 'APP投放一组', 'APP投放二组', 'APP投放三组',
+    'TT投放一组', 'TT投放二组', 'TT投放三组', '素材组', '开发测试'
   ];
+  var ASSIGN_ROLES = ROLES.filter(function (name) { return name !== '开发测试'; });
+  var ASSIGN_GROUPS = DATA_GROUPS.filter(function (name) { return name !== '开发测试'; });
   var NICKNAMES = Array.from({ length: 24 }, function (_, i) {
     return '用户' + String.fromCharCode(65 + i);
   });
-  var OPERATORS = NICKNAMES.slice(0, 8);
+  var SAMPLE_LOGS = [
+    { operator: '用户A', time: '2026-08-10 09:30:00', type: '编辑角色', from: '-', to: '海外投放' },
+    { operator: '用户A', time: '2026-08-11 09:30:00', type: '编辑数据组', from: '-', to: 'APP投放一组' },
+    { operator: '用户A', time: '2026-08-12 09:30:00', type: '扮演用户', from: '-', to: '-' },
+    { operator: '用户A', time: '2026-08-13 09:30:00', type: '编辑角色', from: '海外投放', to: '海外投放,权限配置' },
+    { operator: '用户A', time: '2026-08-14 09:30:00', type: '编辑数据组', from: 'APP投放一组', to: '全部账户' },
+    { operator: '用户A', time: '2026-08-15 09:30:00', type: '同步状态', from: '启用', to: '禁用' }
+  ];
 
   function pad2(n) { return n < 10 ? '0' + n : String(n); }
 
@@ -63,10 +72,10 @@
     for (i = 0; i < count; i++) {
       var depts = [pick(DEPARTMENTS, i)];
       if (i % 5 === 2) depts.push(pick(DEPARTMENTS, i + 3));
-      var roles = i % 4 === 1 ? [] : [pick(ROLES, i)];
-      if (i % 7 === 0 && roles.length) roles.push(pick(ROLES, i + 2));
-      var groups = i % 4 === 0 ? [] : [pick(DATA_GROUPS, i)];
-      if (i % 11 === 0) groups = [pick(DATA_GROUPS, i), pick(DATA_GROUPS, i + 3)];
+      var roles = i % 4 === 1 ? [] : [pick(ASSIGN_ROLES, i)];
+      if (i % 7 === 0 && roles.length) roles.push(pick(ASSIGN_ROLES, i + 2));
+      var groups = i % 4 === 0 ? [] : [pick(ASSIGN_GROUPS, i)];
+      if (i % 11 === 0) groups = [pick(ASSIGN_GROUPS, i), pick(ASSIGN_GROUPS, i + 3)];
       var updated = new Date(2026, 7, 10, 9, 30, 4);
       updated.setMinutes(updated.getMinutes() - i * 17);
       updated.setSeconds((i * 7) % 60);
@@ -116,50 +125,83 @@
 
   var ALL_ROWS = buildMockRows(24);
   var EDIT_LOGS = {};
-  var LOG_ANCHOR = new Date(2026, 7, 10, 18, 0, 0);
+  var LOG_STORE_KEY = 'delivery.user-logs';
 
-  function pushEditLog(userId, type, from, to, operator, time, remark) {
-    if (!EDIT_LOGS[userId]) EDIT_LOGS[userId] = [];
-    EDIT_LOGS[userId].unshift({
-      time: time || formatDateTime(new Date()),
-      operator: operator || '用户A',
-      type: type,
-      from: from,
-      to: to,
-      remark: remark || ''
+  function currentOperator() {
+    var shell = window.DeliveryShell;
+    var user = shell && shell.currentUser ? shell.currentUser() : null;
+    return (user && user.nickname) || '用户A';
+  }
+
+  function navigationType() {
+    var entries = window.performance && performance.getEntriesByType
+      ? performance.getEntriesByType('navigation')
+      : [];
+    return entries[0] && entries[0].type;
+  }
+
+  function readSessionLogs() {
+    try {
+      var raw = sessionStorage.getItem(LOG_STORE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch (err) {
+      return {};
+    }
+  }
+
+  function writeSessionLogs(data) {
+    try { sessionStorage.setItem(LOG_STORE_KEY, JSON.stringify(data)); } catch (err) {}
+  }
+
+  function clearSessionLogsIfReload() {
+    if (navigationType() !== 'reload') return;
+    try { sessionStorage.removeItem(LOG_STORE_KEY); } catch (err) {}
+  }
+
+  function saveSessionLog(userId, entry) {
+    var data = readSessionLogs();
+    if (!data[userId]) data[userId] = [];
+    data[userId].unshift(entry);
+    writeSessionLogs(data);
+  }
+
+  function restoreSessionLogs() {
+    var data = readSessionLogs();
+    Object.keys(data).forEach(function (userId) {
+      var list = data[userId] || [];
+      if (!EDIT_LOGS[userId]) EDIT_LOGS[userId] = [];
+      var i;
+      for (i = list.length - 1; i >= 0; i -= 1) EDIT_LOGS[userId].unshift(list[i]);
     });
   }
 
-  function seedEditLogs(row, count, seedOffset) {
-    var types = ['修改角色', '修改数据组', '修改状态'];
-    var i;
-    for (i = count - 1; i >= 0; i--) {
-      var t = new Date(LOG_ANCHOR.getTime() - seedOffset * 3600000 - i * 240000 - (i % 5) * 1000);
-      var op = OPERATORS[(seedOffset + i) % OPERATORS.length];
-      var type = types[i % 3];
-      if (type === '修改角色') {
-        pushEditLog(row.id, type, pick(ROLES, i + seedOffset), pick(ROLES, i + seedOffset + 1), op, formatDateTime(t));
-      } else if (type === '修改数据组') {
-        pushEditLog(row.id, type, pick(DATA_GROUPS, i + seedOffset), pick(DATA_GROUPS, i + seedOffset + 2), op, formatDateTime(t));
-      } else {
-        var on = i % 2 === 0;
-        pushEditLog(row.id, type, on ? '禁用' : '启用', on ? '启用' : '禁用', op, formatDateTime(t));
-      }
-    }
+  function logText(value) {
+    if (value == null || value === '' || value === '空') return '-';
+    return String(value);
   }
 
-  if (ALL_ROWS[1]) seedEditLogs(ALL_ROWS[1], 12, 1);
-  if (ALL_ROWS[2]) seedEditLogs(ALL_ROWS[2], 5, 2);
-  if (ALL_ROWS[4]) seedEditLogs(ALL_ROWS[4], 3, 3);
+  function pushEditLog(userId, type, from, to, operator, time, persist) {
+    var entry = {
+      time: time || formatDateTime(new Date()),
+      operator: operator || currentOperator(),
+      type: type,
+      from: logText(from),
+      to: logText(to)
+    };
+    if (!EDIT_LOGS[userId]) EDIT_LOGS[userId] = [];
+    EDIT_LOGS[userId].unshift(entry);
+    if (persist) saveSessionLog(userId, entry);
+  }
 
-  ALL_ROWS.forEach(function (row) {
-    if (row.pendingSync) {
-      pushEditLog(row.id, '同步离职', '启用', '禁用', '系统', row.employmentSyncedAt);
-    } else if (row.status === '禁用' && row.employment === '离职') {
-      pushEditLog(row.id, '同步离职', '启用', '禁用', '系统', row.employmentSyncedAt);
-      pushEditLog(row.id, '同步状态', '未交接', '已交接', '用户A', row.updatedAt);
-    }
-  });
+  function seedSampleLogs(row) {
+    SAMPLE_LOGS.forEach(function (item) {
+      pushEditLog(row.id, item.type, item.from, item.to, item.operator, item.time);
+    });
+  }
+
+  clearSessionLogsIfReload();
+  ALL_ROWS.forEach(seedSampleLogs);
+  restoreSessionLogs();
 
   var state = {
     draft: {
@@ -178,6 +220,7 @@
     impersonateId: null,
     reviewSelected: {},
     logUserId: null,
+    logType: '',
     logPage: 1,
     logPageSize: 20,
     paginationBound: false,
@@ -195,10 +238,14 @@
     state.page = 1;
   }
 
+  function byCreatedDesc(a, b) {
+    if (a.createdAt === b.createdAt) return 0;
+    return a.createdAt < b.createdAt ? 1 : -1;
+  }
+
   function getFilteredRows() {
     var f = state.applied;
-    if (!f) return ALL_ROWS.slice();
-    return ALL_ROWS.filter(function (row) {
+    var rows = !f ? ALL_ROWS.slice() : ALL_ROWS.filter(function (row) {
       if (f.nickname && row.nickname.indexOf(f.nickname) === -1) return false;
       if (f.departments.length && !f.departments.some(function (d) { return row.departments.indexOf(d) !== -1; })) return false;
       if (f.roles.length && !f.roles.some(function (r) { return row.roles.indexOf(r) !== -1; })) return false;
@@ -206,6 +253,7 @@
       if (f.status && row.status !== f.status) return false;
       return true;
     });
+    return rows.sort(byCreatedDesc);
   }
 
   var deptFilter = UI.bindMultiSelect({
@@ -265,6 +313,21 @@
     e.stopPropagation();
     state.draft.dataGroups = [];
     if (dataGroupFilter && dataGroupFilter.render) dataGroupFilter.render();
+  });
+
+  var logTypeSelect = UI.bindSingleSelect({
+    wrapId: 'logTypeWrap',
+    triggerId: 'logTypeTrigger',
+    panelId: 'logTypePanel',
+    labelId: 'logTypeLabel',
+    clearId: 'logTypeClear',
+    prefix: '操作类型：',
+    getValue: function () { return state.logType; },
+    onChange: function (value) {
+      state.logType = value || '';
+      state.logPage = 1;
+      if (state.logUserId) renderLogDrawer();
+    }
   });
 
   var statusFilter = UI.bindSingleSelect({
@@ -418,17 +481,17 @@
     if (!row) return;
     var nextRoles = (state.editRoles || []).slice();
     var nextGroups = (state.editDataGroups || []).slice();
-    var operator = '用户A';
+    var operator = currentOperator();
     var now = formatDateTime(new Date());
     var changed = false;
 
     if (!sameList(row.roles, nextRoles)) {
-      pushEditLog(row.id, '修改角色', displayList(row.roles), displayList(nextRoles), operator, now);
+      pushEditLog(row.id, '编辑角色', displayList(row.roles), displayList(nextRoles), operator, now, true);
       row.roles = nextRoles;
       changed = true;
     }
     if (!sameList(row.dataGroups, nextGroups)) {
-      pushEditLog(row.id, '修改数据组', displayList(row.dataGroups), displayList(nextGroups), operator, now);
+      pushEditLog(row.id, '编辑数据组', displayList(row.dataGroups), displayList(nextGroups), operator, now, true);
       row.dataGroups = nextGroups;
       changed = true;
     }
@@ -446,7 +509,7 @@
   function openImpersonate(row) {
     if (!row) return;
     state.impersonateId = row.id;
-    $('impersonateBody').textContent = '确认扮演用户「' + row.nickname + '」吗？扮演后将以该用户权限访问系统。';
+    $('impersonateBody').textContent = '确认以 [ ' + row.nickname + ' ] 的身份登录系统？';
     UI.openModal('impersonateModal');
   }
 
@@ -454,20 +517,33 @@
     var row = findRow(state.impersonateId);
     state.impersonateId = null;
     UI.closeModal('impersonateModal');
-    if (!row) return;
-    UI.showToast('已切换为扮演「' + row.nickname + '」', 'success');
+    if (!row || !window.DeliveryShell || !window.DeliveryShell.startImpersonation) return;
+    var operator = currentOperator();
+    pushEditLog(row.id, '扮演用户', '-', '-', operator, formatDateTime(new Date()), true);
+    window.DeliveryShell.startImpersonation({
+      nickname: row.nickname,
+      account: row.account
+    });
+  }
+
+  function logsForDrawer() {
+    var logs = state.logUserId ? (EDIT_LOGS[state.logUserId] || []) : [];
+    var sorted = logs.slice().sort(function (a, b) {
+      return String(b.time).localeCompare(String(a.time));
+    });
+    if (!state.logType) return sorted;
+    return sorted.filter(function (log) { return log.type === state.logType; });
   }
 
   function renderLogDrawer() {
     var body = $('logDrawerBody');
     var pager = $('logPagination');
-    var userId = state.logUserId;
-    var row = findRow(userId);
-    var logs = userId ? (EDIT_LOGS[userId] || []) : [];
-    $('logDrawerTitle').textContent = row ? ('编辑日志 · ' + row.nickname) : '编辑日志';
+    var row = findRow(state.logUserId);
+    var logs = logsForDrawer();
+    $('logDrawerTitle').textContent = row ? ('日志 · ' + row.nickname) : '日志';
 
     if (!logs.length) {
-      body.innerHTML = '<div class="log-table__empty">暂无编辑日志</div>';
+      body.innerHTML = '<div class="log-table__empty">暂无日志</div>';
       if (pager) {
         pager.hidden = true;
         pager.innerHTML = '';
@@ -483,19 +559,16 @@
 
     body.innerHTML =
       '<div class="log-table-shell"><table class="log-table">' +
-        '<colgroup><col style="width:180px"/><col style="width:88px"/><col style="width:120px"/><col/></colgroup>' +
-        '<thead><tr><th>操作时间</th><th>操作人</th><th>类型</th><th>变更内容</th></tr></thead>' +
+        '<colgroup><col style="width:88px"/><col style="width:180px"/><col style="width:120px"/><col/><col/></colgroup>' +
+        '<thead><tr><th>操作人</th><th>操作时间</th><th>操作类型</th><th>变更前</th><th>变更后</th></tr></thead>' +
         '<tbody>' +
         pageLogs.map(function (log) {
           return '<tr>' +
-            '<td>' + escapeHtml(log.time) + '</td>' +
             '<td>' + escapeHtml(log.operator) + '</td>' +
+            '<td>' + escapeHtml(log.time) + '</td>' +
             '<td>' + escapeHtml(log.type) + '</td>' +
-            '<td><div class="log-table__change"><div class="log-table__change-item">' +
-              escapeHtml(log.from) + ' → ' + escapeHtml(log.to) +
-            '</div>' +
-            (log.remark ? '<div class="log-table__change-item">备注：' + escapeHtml(log.remark) + '</div>' : '') +
-            '</div></td>' +
+            '<td class="log-table__value">' + escapeHtml(log.from) + '</td>' +
+            '<td class="log-table__value">' + escapeHtml(log.to) + '</td>' +
           '</tr>';
         }).join('') +
         '</tbody></table></div>';
@@ -514,9 +587,7 @@
           containerId: 'logPagination',
           getPage: function () { return state.logPage; },
           getPageSize: function () { return state.logPageSize; },
-          getTotal: function () {
-            return state.logUserId ? (EDIT_LOGS[state.logUserId] || []).length : 0;
-          },
+          getTotal: function () { return logsForDrawer().length; },
           onPageChange: function (p) {
             state.logPage = p;
             renderLogDrawer();
@@ -534,7 +605,9 @@
   function openLogDrawer(row) {
     if (!row) return;
     state.logUserId = row.id;
+    state.logType = '';
     state.logPage = 1;
+    if (logTypeSelect && logTypeSelect.syncLabel) logTypeSelect.syncLabel('');
     renderLogDrawer();
     UI.openDrawer('logDrawer');
   }
@@ -604,7 +677,7 @@
     ids.forEach(function (id) {
       var row = findRow(id);
       if (!row || !row.pendingSync) return;
-      pushEditLog(row.id, '同步状态', '未交接', '已交接', '用户A', now);
+      pushEditLog(row.id, '同步状态', '未交接', '已交接', currentOperator(), now, true);
       row.departments = [];
       row.roles = [];
       row.dataGroups = [];
