@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>投放系统 · 原型预览</title>
+  <link rel="icon" href="素材/logo.png" type="image/png" />
+  <link rel="stylesheet" href="design-tokens.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: var(--font-family-base);
+      color: var(--color-text-1, #1D2129);
+      background:
+        radial-gradient(1200px 500px at 10% -10%, #E8F3FF 0%, transparent 55%),
+        radial-gradient(900px 420px at 100% 0%, #F2F3F5 0%, transparent 50%),
+        var(--color-fill-1, #F7F8FA);
+      padding: 48px 24px 64px;
+    }
+    .wrap { max-width: 720px; margin: 0 auto; }
+    .brand {
+      font-size: 28px;
+      font-weight: 600;
+      line-height: 36px;
+      letter-spacing: 0.02em;
+      margin-bottom: 8px;
+    }
+    .desc {
+      font-size: 14px;
+      line-height: 22px;
+      color: var(--color-text-2, #4E5969);
+      margin-bottom: 28px;
+    }
+    .tree-card {
+      background: var(--color-bg-white, #fff);
+      border: 1px solid var(--color-border-2, #E5E6EB);
+      border-radius: 8px;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      padding: 8px 0;
+      overflow: hidden;
+    }
+    .tree { list-style: none; }
+    .tree ul { list-style: none; }
+    .tree-node { position: relative; }
+    .tree-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 40px;
+      padding: 0 16px;
+      font-size: 14px;
+      line-height: 22px;
+      color: var(--color-text-1, #1D2129);
+      user-select: none;
+    }
+    .tree-row:hover { background: var(--color-gray-hover, #F5F7FA); }
+    .tree-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      border: none;
+      background: transparent;
+      color: var(--color-text-3, #86909C);
+      cursor: pointer;
+      padding: 0;
+      border-radius: 2px;
+    }
+    .tree-toggle:hover { color: var(--color-text-2, #4E5969); }
+    .tree-toggle svg {
+      width: 12px;
+      height: 12px;
+      transition: transform 0.15s;
+    }
+    .tree-node.is-collapsed > .tree-row .tree-toggle svg { transform: rotate(-90deg); }
+    .tree-node.is-collapsed > .tree-children { display: none; }
+    .tree-spacer { width: 16px; flex-shrink: 0; }
+    .tree-label {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .tree-row--module { font-weight: 600; font-size: 15px; }
+    .tree-row--group { font-weight: 500; color: var(--color-text-2, #4E5969); }
+    a.tree-link { color: var(--color-primary, #165DFF); text-decoration: none; }
+    a.tree-link:hover { text-decoration: underline; }
+    .tree-children { position: relative; }
+    .tree-children .tree-row { padding-left: 36px; }
+    .tree-children .tree-children .tree-row { padding-left: 56px; }
+    .tree-children .tree-children .tree-children .tree-row { padding-left: 76px; }
+    .tip {
+      margin-top: 24px;
+      padding: 12px 16px;
+      background: var(--color-bg-white, #fff);
+      border: 1px solid var(--color-border-2, #E5E6EB);
+      border-radius: 4px;
+      font-size: 13px;
+      line-height: 20px;
+      color: var(--color-text-2, #4E5969);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1 class="brand">投放系统 · 原型预览</h1>
+    <p class="desc">Wonder Ads 已定版页面入口，按顶部模块与侧边栏菜单顺序整理。本站与海外中台原型预览相互独立，后续定版页面持续更新到本地址。</p>
+
+    <div class="tree-card">
+      <ul class="tree" id="protoTree" aria-label="原型目录">
+        <li class="tree-node">
+          <div class="tree-row tree-row--leaf">
+            <span class="tree-spacer"></span>
+            <a class="tree-label tree-link" href="./login.html" target="_blank" rel="noopener noreferrer">登录</a>
+          </div>
+        </li>
+        <li class="tree-node">
+          <div class="tree-row tree-row--leaf">
+            <span class="tree-spacer"></span>
+            <a class="tree-label tree-link" href="./home.html" target="_blank" rel="noopener noreferrer">首页</a>
+          </div>
+        </li>
+
+        <li class="tree-node" data-node>
+          <div class="tree-row tree-row--module">
+            <button class="tree-toggle" type="button" aria-label="折叠" data-toggle>
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+            </button>
+            <span class="tree-label">管理</span>
+          </div>
+          <ul class="tree-children">
+            <li class="tree-node">
+              <div class="tree-row tree-row--leaf">
+                <span class="tree-spacer"></span>
+                <a class="tree-label tree-link" href="./menu.html" target="_blank" rel="noopener noreferrer">菜单管理</a>
+              </div>
+            </li>
+            <li class="tree-node" data-node>
+              <div class="tree-row tree-row--group">
+                <button class="tree-toggle" type="button" aria-label="折叠" data-toggle>
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+                </button>
+                <span class="tree-label">权限管理</span>
+              </div>
+              <ul class="tree-children">
+                <li class="tree-node">
+                  <div class="tree-row tree-row--leaf">
+                    <span class="tree-spacer"></span>
+                    <a class="tree-label tree-link" href="./user.html" target="_blank" rel="noopener noreferrer">用户管理</a>
+                  </div>
+                </li>
+                <li class="tree-node">
+                  <div class="tree-row tree-row--leaf">
+                    <span class="tree-spacer"></span>
+                    <a class="tree-label tree-link" href="./role.html" target="_blank" rel="noopener noreferrer">角色管理</a>
+                  </div>
+                </li>
+                <li class="tree-node">
+                  <div class="tree-row tree-row--leaf">
+                    <span class="tree-spacer"></span>
+                    <a class="tree-label tree-link" href="./department.html" target="_blank" rel="noopener noreferrer">数据组管理</a>
+                  </div>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <div class="tip">建议收藏本页地址。更新后刷新浏览器即可看到最新原型（如有缓存可强制刷新 Ctrl+F5）。</div>
+  </div>
+
+  <script>
+    (function () {
+      document.getElementById('protoTree').addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-toggle]');
+        if (!btn) return;
+        var node = btn.closest('[data-node]');
+        if (!node) return;
+        node.classList.toggle('is-collapsed');
+        btn.setAttribute('aria-label', node.classList.contains('is-collapsed') ? '展开' : '折叠');
+      });
+    })();
+  </script>
+</body>
+</html>

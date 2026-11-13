@@ -1,0 +1,696 @@
+/* 投放系统 · 用户管理
+ * 查询才刷表；重置立即重查。账号 / 昵称 / 部门只读。
+ * 飞书离职直接禁用并保留部门、角色、数据组。审核勾选提交后同步清空这些关联。
+ */
+(function () {
+  'use strict';
+
+  var UI = window.ProductUI;
+  if (!UI) return;
+
+  var $ = UI.$;
+  var escapeHtml = UI.escapeHtml;
+
+  var DEPARTMENTS = [
+    '人力行政部', '财务部', '总经办', '商务+直播+漫剧', '海外发行', '国内发行',
+    '苹果组', '无花果', '奇异果', '坚果组', '硕果组', '研发组', '发行组'
+  ];
+  var ROLES = ['管理员', '海外负责人', '海外投放', '海外素材', '财务审计', '开发测试'];
+  var DATA_GROUPS = [
+    '全部账户', '开发测试', 'APP投放-一组', 'APP投放-二组', 'APP投放-三组',
+    'TT投放-一组', 'TT投放-二组', 'TT投放-三组'
+  ];
+  var NICKNAMES = Array.from({ length: 24 }, function (_, i) {
+    return '用户' + String.fromCharCode(65 + i);
+  });
+  var OPERATORS = NICKNAMES.slice(0, 8);
+
+  function pad2(n) { return n < 10 ? '0' + n : String(n); }
+
+  function formatDateTime(d) {
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) +
+      ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds());
+  }
+
+  function pick(arr, i) {
+    return arr[((i % arr.length) + arr.length) % arr.length];
+  }
+
+  function makeAccount(i) {
+    var base = String(100033445740015 + i * 137 + (i % 9) * 1000003);
+    if (base.length < 14) base = (base + '00000000000000').slice(0, 14);
+    if (base.length > 16) base = base.slice(0, 16);
+    return '01' + base;
+  }
+
+  function joinList(list) {
+    return (list && list.length) ? list.join(', ') : '-';
+  }
+
+  function sameList(a, b) {
+    var left = (a || []).slice().sort().join('\u0001');
+    var right = (b || []).slice().sort().join('\u0001');
+    return left === right;
+  }
+
+  function displayList(list) {
+    return (list && list.length) ? list.join(', ') : '空';
+  }
+
+  function buildMockRows(count) {
+    var list = [];
+    var i;
+    for (i = 0; i < count; i++) {
+      var depts = [pick(DEPARTMENTS, i)];
+      if (i % 5 === 2) depts.push(pick(DEPARTMENTS, i + 3));
+      var roles = i % 4 === 1 ? [] : [pick(ROLES, i)];
+      if (i % 7 === 0 && roles.length) roles.push(pick(ROLES, i + 2));
+      var groups = i % 4 === 0 ? [] : [pick(DATA_GROUPS, i)];
+      if (i % 11 === 0) groups = [pick(DATA_GROUPS, i), pick(DATA_GROUPS, i + 3)];
+      var updated = new Date(2026, 7, 10, 9, 30, 4);
+      updated.setMinutes(updated.getMinutes() - i * 17);
+      updated.setSeconds((i * 7) % 60);
+      var created = new Date(updated.getTime());
+      created.setDate(created.getDate() - (12 + (i % 20)));
+      created.setHours(10, (i * 3) % 60, (i * 11) % 60);
+      var employment = '在职';
+      var status = '启用';
+      var pendingSync = false;
+      var syncedAt = '';
+      if (i % 8 === 3) {
+        status = '禁用';
+        employment = '离职';
+        pendingSync = true;
+        var pendingAt = new Date(updated.getTime());
+        pendingAt.setHours(pendingAt.getHours() - 6);
+        syncedAt = formatDateTime(pendingAt);
+      } else if (i % 9 === 0) {
+        status = '禁用';
+        depts = [];
+        roles = [];
+        groups = [];
+        if (i % 18 === 0) {
+          employment = '离职';
+          var approvedSync = new Date(updated.getTime());
+          approvedSync.setHours(approvedSync.getHours() - 30);
+          syncedAt = formatDateTime(approvedSync);
+        }
+      }
+      list.push({
+        id: 'u-' + (i + 1),
+        nickname: pick(NICKNAMES, i),
+        account: makeAccount(i),
+        departments: depts,
+        roles: roles,
+        dataGroups: groups,
+        employment: employment,
+        employmentSyncedAt: syncedAt,
+        pendingSync: pendingSync,
+        status: status,
+        updatedAt: formatDateTime(updated),
+        createdAt: formatDateTime(created)
+      });
+    }
+    return list;
+  }
+
+  var ALL_ROWS = buildMockRows(24);
+  var EDIT_LOGS = {};
+  var LOG_ANCHOR = new Date(2026, 7, 10, 18, 0, 0);
+
+  function pushEditLog(userId, type, from, to, operator, time, remark) {
+    if (!EDIT_LOGS[userId]) EDIT_LOGS[userId] = [];
+    EDIT_LOGS[userId].unshift({
+      time: time || formatDateTime(new Date()),
+      operator: operator || '用户A',
+      type: type,
+      from: from,
+      to: to,
+      remark: remark || ''
+    });
+  }
+
+  function seedEditLogs(row, count, seedOffset) {
+    var types = ['修改角色', '修改数据组', '修改状态'];
+    var i;
+    for (i = count - 1; i >= 0; i--) {
+      var t = new Date(LOG_ANCHOR.getTime() - seedOffset * 3600000 - i * 240000 - (i % 5) * 1000);
+      var op = OPERATORS[(seedOffset + i) % OPERATORS.length];
+      var type = types[i % 3];
+      if (type === '修改角色') {
+        pushEditLog(row.id, type, pick(ROLES, i + seedOffset), pick(ROLES, i + seedOffset + 1), op, formatDateTime(t));
+      } else if (type === '修改数据组') {
+        pushEditLog(row.id, type, pick(DATA_GROUPS, i + seedOffset), pick(DATA_GROUPS, i + seedOffset + 2), op, formatDateTime(t));
+      } else {
+        var on = i % 2 === 0;
+        pushEditLog(row.id, type, on ? '禁用' : '启用', on ? '启用' : '禁用', op, formatDateTime(t));
+      }
+    }
+  }
+
+  if (ALL_ROWS[1]) seedEditLogs(ALL_ROWS[1], 12, 1);
+  if (ALL_ROWS[2]) seedEditLogs(ALL_ROWS[2], 5, 2);
+  if (ALL_ROWS[4]) seedEditLogs(ALL_ROWS[4], 3, 3);
+
+  ALL_ROWS.forEach(function (row) {
+    if (row.pendingSync) {
+      pushEditLog(row.id, '同步离职', '启用', '禁用', '系统', row.employmentSyncedAt);
+    } else if (row.status === '禁用' && row.employment === '离职') {
+      pushEditLog(row.id, '同步离职', '启用', '禁用', '系统', row.employmentSyncedAt);
+      pushEditLog(row.id, '同步状态', '未交接', '已交接', '用户A', row.updatedAt);
+    }
+  });
+
+  var state = {
+    draft: {
+      nickname: '',
+      departments: [],
+      roles: [],
+      dataGroups: [],
+      status: ''
+    },
+    applied: null,
+    page: 1,
+    pageSize: 20,
+    editId: null,
+    editRoles: [],
+    editDataGroups: [],
+    impersonateId: null,
+    reviewSelected: {},
+    logUserId: null,
+    logPage: 1,
+    logPageSize: 20,
+    paginationBound: false,
+    logPaginationBound: false
+  };
+
+  function applyFilters() {
+    state.applied = {
+      nickname: (state.draft.nickname || '').trim(),
+      departments: (state.draft.departments || []).slice(),
+      roles: (state.draft.roles || []).slice(),
+      dataGroups: (state.draft.dataGroups || []).slice(),
+      status: state.draft.status || ''
+    };
+    state.page = 1;
+  }
+
+  function getFilteredRows() {
+    var f = state.applied;
+    if (!f) return ALL_ROWS.slice();
+    return ALL_ROWS.filter(function (row) {
+      if (f.nickname && row.nickname.indexOf(f.nickname) === -1) return false;
+      if (f.departments.length && !f.departments.some(function (d) { return row.departments.indexOf(d) !== -1; })) return false;
+      if (f.roles.length && !f.roles.some(function (r) { return row.roles.indexOf(r) !== -1; })) return false;
+      if (f.dataGroups.length && !f.dataGroups.some(function (g) { return row.dataGroups.indexOf(g) !== -1; })) return false;
+      if (f.status && row.status !== f.status) return false;
+      return true;
+    });
+  }
+
+  var deptFilter = UI.bindMultiSelect({
+    wrapId: 'deptWrap',
+    triggerId: 'deptTrigger',
+    panelId: 'deptPanel',
+    labelId: 'deptLabel',
+    listId: 'deptList',
+    selectedId: 'deptSelected',
+    searchId: 'deptSearch',
+    countId: 'deptCount',
+    selectAllId: 'deptSelectAll',
+    clearId: 'deptPanelClear',
+    prefix: '部门：',
+    getOptions: function () { return DEPARTMENTS; },
+    getSelected: function () { return state.draft.departments; },
+    setSelected: function (arr) { state.draft.departments = arr; }
+  });
+  $('deptClear').addEventListener('click', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    state.draft.departments = [];
+    if (deptFilter && deptFilter.render) deptFilter.render();
+  });
+
+  var roleFilter = UI.bindMultiSelect({
+    wrapId: 'roleWrap',
+    triggerId: 'roleTrigger',
+    panelId: 'rolePanel',
+    labelId: 'roleLabel',
+    listId: 'roleList',
+    clearId: 'roleClear',
+    prefix: '角色：',
+    getOptions: function () { return ROLES; },
+    getSelected: function () { return state.draft.roles; },
+    setSelected: function (arr) { state.draft.roles = arr; }
+  });
+
+  var dataGroupFilter = UI.bindMultiSelect({
+    wrapId: 'dataGroupWrap',
+    triggerId: 'dataGroupTrigger',
+    panelId: 'dataGroupPanel',
+    labelId: 'dataGroupLabel',
+    listId: 'dataGroupList',
+    selectedId: 'dataGroupSelected',
+    searchId: 'dataGroupSearch',
+    countId: 'dataGroupCount',
+    selectAllId: 'dataGroupSelectAll',
+    clearId: 'dataGroupPanelClear',
+    prefix: '数据组：',
+    getOptions: function () { return DATA_GROUPS; },
+    getSelected: function () { return state.draft.dataGroups; },
+    setSelected: function (arr) { state.draft.dataGroups = arr; }
+  });
+  $('dataGroupClear').addEventListener('click', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    state.draft.dataGroups = [];
+    if (dataGroupFilter && dataGroupFilter.render) dataGroupFilter.render();
+  });
+
+  var statusFilter = UI.bindSingleSelect({
+    wrapId: 'statusWrap',
+    triggerId: 'statusTrigger',
+    panelId: 'statusPanel',
+    labelId: 'statusLabel',
+    clearId: 'statusClear',
+    prefix: '状态：',
+    getValue: function () { return state.draft.status; },
+    onChange: function (v) { state.draft.status = v || ''; }
+  });
+
+  var nicknameClear = UI.bindInputClearable({ wrapId: 'nicknameWrap', inputId: 'filterNickname', clearId: 'nicknameClear' });
+
+  var editRoleSelect = UI.bindMultiSelect({
+    wrapId: 'editRoleWrap',
+    triggerId: 'editRoleTrigger',
+    panelId: 'editRolePanel',
+    labelId: 'editRoleLabel',
+    listId: 'editRoleList',
+    clearId: 'editRoleClear',
+    getOptions: function () { return ROLES; },
+    getSelected: function () { return state.editRoles; },
+    setSelected: function (arr) { state.editRoles = arr; }
+  });
+
+  var editDataGroupSelect = UI.bindMultiSelect({
+    wrapId: 'editDataGroupWrap',
+    triggerId: 'editDataGroupTrigger',
+    panelId: 'editDataGroupPanel',
+    labelId: 'editDataGroupLabel',
+    listId: 'editDataGroupList',
+    selectedId: 'editDataGroupSelected',
+    searchId: 'editDataGroupSearch',
+    countId: 'editDataGroupCount',
+    selectAllId: 'editDataGroupSelectAll',
+    clearId: 'editDataGroupPanelClear',
+    getOptions: function () { return DATA_GROUPS; },
+    getSelected: function () { return state.editDataGroups; },
+    setSelected: function (arr) { state.editDataGroups = arr; }
+  });
+  $('editDataGroupClear').addEventListener('click', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    state.editDataGroups = [];
+    if (editDataGroupSelect && editDataGroupSelect.render) editDataGroupSelect.render();
+  });
+
+  $('filterNickname').addEventListener('input', function () {
+    state.draft.nickname = this.value || '';
+  });
+
+  function pendingRows() {
+    return ALL_ROWS.filter(function (row) { return row.pendingSync; });
+  }
+
+  function renderReviewBadge() {
+    var badge = $('reviewBadge');
+    var btn = $('reviewBtn');
+    if (!badge || !btn) return;
+    var count = pendingRows().length;
+    badge.hidden = count === 0;
+    badge.textContent = String(count);
+    btn.setAttribute('aria-label', count ? ('审核，' + count + ' 个账号待同步') : '审核');
+  }
+
+  function renderTable() {
+    if (!state.applied) applyFilters();
+    renderReviewBadge();
+    var rows = getFilteredRows();
+    var total = rows.length;
+    var totalPages = Math.max(1, Math.ceil(total / state.pageSize) || 1);
+    if (state.page > totalPages) state.page = totalPages;
+    var start = (state.page - 1) * state.pageSize;
+    var pageRows = rows.slice(start, start + state.pageSize);
+    var body = $('tableBody');
+    var empty = $('emptyTip');
+
+    if (!pageRows.length) {
+      body.innerHTML = '';
+      if (empty) empty.hidden = false;
+    } else {
+      if (empty) empty.hidden = true;
+      body.innerHTML = pageRows.map(function (row) {
+        return '<tr data-id="' + escapeHtml(row.id) + '">' +
+          '<td><span class="user-cell"><span class="user-cell__avatar" aria-hidden="true"></span><span class="user-cell__name">' + escapeHtml(row.nickname) + '</span></span></td>' +
+          '<td class="col-account">' + escapeHtml(row.account) + '</td>' +
+          '<td title="' + escapeHtml(joinList(row.departments)) + '">' + escapeHtml(joinList(row.departments)) + '</td>' +
+          '<td title="' + escapeHtml(joinList(row.roles)) + '">' + escapeHtml(joinList(row.roles)) + '</td>' +
+          '<td title="' + escapeHtml(joinList(row.dataGroups)) + '">' + escapeHtml(joinList(row.dataGroups)) + '</td>' +
+          '<td>' + UI.statusTag(row.status) + '</td>' +
+          '<td>' + escapeHtml(row.updatedAt) + '</td>' +
+          '<td>' + escapeHtml(row.createdAt) + '</td>' +
+          '<td class="col-action"><span class="action-links">' +
+            '<button class="link" type="button" data-action="edit">编辑</button>' +
+            '<button class="link" type="button" data-action="impersonate">扮演</button>' +
+            '<button class="link" type="button" data-action="log">日志</button>' +
+          '</span></td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    UI.renderPagination({
+      containerId: 'pagination',
+      total: total,
+      page: state.page,
+      pageSize: state.pageSize
+    });
+    if (!state.paginationBound) {
+      state.paginationBound = true;
+      UI.bindPagination({
+        containerId: 'pagination',
+        getPage: function () { return state.page; },
+        getPageSize: function () { return state.pageSize; },
+        getTotal: function () { return getFilteredRows().length; },
+        onPageChange: function (p) {
+          state.page = p;
+          renderTable();
+        },
+        onPageSizeChange: function (size) {
+          state.pageSize = size;
+          state.page = 1;
+          renderTable();
+        }
+      });
+    }
+
+    if (window.ColResize) ColResize.refresh($('userTable'));
+  }
+
+  function findRow(id) {
+    return ALL_ROWS.find(function (r) { return r.id === id; });
+  }
+
+  function openEdit(row) {
+    if (!row) return;
+    state.editId = row.id;
+    state.editRoles = (row.roles || []).slice();
+    state.editDataGroups = (row.dataGroups || []).slice();
+    $('editAccount').value = row.account;
+    $('editNickname').value = row.nickname;
+    $('editDept').value = (row.departments || []).join(', ');
+    if (editRoleSelect && editRoleSelect.render) editRoleSelect.render();
+    if (editDataGroupSelect && editDataGroupSelect.render) editDataGroupSelect.render();
+    UI.openModal('editModal');
+  }
+
+  function submitEdit() {
+    var row = findRow(state.editId);
+    if (!row) return;
+    var nextRoles = (state.editRoles || []).slice();
+    var nextGroups = (state.editDataGroups || []).slice();
+    var operator = '用户A';
+    var now = formatDateTime(new Date());
+    var changed = false;
+
+    if (!sameList(row.roles, nextRoles)) {
+      pushEditLog(row.id, '修改角色', displayList(row.roles), displayList(nextRoles), operator, now);
+      row.roles = nextRoles;
+      changed = true;
+    }
+    if (!sameList(row.dataGroups, nextGroups)) {
+      pushEditLog(row.id, '修改数据组', displayList(row.dataGroups), displayList(nextGroups), operator, now);
+      row.dataGroups = nextGroups;
+      changed = true;
+    }
+
+    if (changed) {
+      row.updatedAt = now;
+      UI.showToast('提交成功', 'success');
+    } else {
+      UI.showToast('未修改任何内容', 'info');
+    }
+    UI.closeModal('editModal');
+    renderTable();
+  }
+
+  function openImpersonate(row) {
+    if (!row) return;
+    state.impersonateId = row.id;
+    $('impersonateBody').textContent = '确认扮演用户「' + row.nickname + '」吗？扮演后将以该用户权限访问系统。';
+    UI.openModal('impersonateModal');
+  }
+
+  function confirmImpersonate() {
+    var row = findRow(state.impersonateId);
+    state.impersonateId = null;
+    UI.closeModal('impersonateModal');
+    if (!row) return;
+    UI.showToast('已切换为扮演「' + row.nickname + '」', 'success');
+  }
+
+  function renderLogDrawer() {
+    var body = $('logDrawerBody');
+    var pager = $('logPagination');
+    var userId = state.logUserId;
+    var row = findRow(userId);
+    var logs = userId ? (EDIT_LOGS[userId] || []) : [];
+    $('logDrawerTitle').textContent = row ? ('编辑日志 · ' + row.nickname) : '编辑日志';
+
+    if (!logs.length) {
+      body.innerHTML = '<div class="log-table__empty">暂无编辑日志</div>';
+      if (pager) {
+        pager.hidden = true;
+        pager.innerHTML = '';
+      }
+      return;
+    }
+
+    var total = logs.length;
+    var totalPages = Math.max(1, Math.ceil(total / state.logPageSize));
+    if (state.logPage > totalPages) state.logPage = totalPages;
+    var start = (state.logPage - 1) * state.logPageSize;
+    var pageLogs = logs.slice(start, start + state.logPageSize);
+
+    body.innerHTML =
+      '<div class="log-table-shell"><table class="log-table">' +
+        '<colgroup><col style="width:180px"/><col style="width:88px"/><col style="width:120px"/><col/></colgroup>' +
+        '<thead><tr><th>操作时间</th><th>操作人</th><th>类型</th><th>变更内容</th></tr></thead>' +
+        '<tbody>' +
+        pageLogs.map(function (log) {
+          return '<tr>' +
+            '<td>' + escapeHtml(log.time) + '</td>' +
+            '<td>' + escapeHtml(log.operator) + '</td>' +
+            '<td>' + escapeHtml(log.type) + '</td>' +
+            '<td><div class="log-table__change"><div class="log-table__change-item">' +
+              escapeHtml(log.from) + ' → ' + escapeHtml(log.to) +
+            '</div>' +
+            (log.remark ? '<div class="log-table__change-item">备注：' + escapeHtml(log.remark) + '</div>' : '') +
+            '</div></td>' +
+          '</tr>';
+        }).join('') +
+        '</tbody></table></div>';
+
+    if (pager) {
+      pager.hidden = false;
+      UI.renderPagination({
+        containerId: 'logPagination',
+        total: total,
+        page: state.logPage,
+        pageSize: state.logPageSize
+      });
+      if (!state.logPaginationBound) {
+        state.logPaginationBound = true;
+        UI.bindPagination({
+          containerId: 'logPagination',
+          getPage: function () { return state.logPage; },
+          getPageSize: function () { return state.logPageSize; },
+          getTotal: function () {
+            return state.logUserId ? (EDIT_LOGS[state.logUserId] || []).length : 0;
+          },
+          onPageChange: function (p) {
+            state.logPage = p;
+            renderLogDrawer();
+          },
+          onPageSizeChange: function (size) {
+            state.logPageSize = size;
+            state.logPage = 1;
+            renderLogDrawer();
+          }
+        });
+      }
+    }
+  }
+
+  function openLogDrawer(row) {
+    if (!row) return;
+    state.logUserId = row.id;
+    state.logPage = 1;
+    renderLogDrawer();
+    UI.openDrawer('logDrawer');
+  }
+
+  function closeLogDrawer() {
+    UI.closeDrawer('logDrawer');
+    state.logUserId = null;
+  }
+
+  function setReviewError(on) {
+    var tip = $('reviewTip');
+    if (tip) tip.classList.toggle('is-error', !!on);
+  }
+
+  function syncReviewCheckAll(rows) {
+    var box = $('reviewCheckAll');
+    if (!box) return;
+    var list = rows || pendingRows();
+    var picked = list.filter(function (row) { return state.reviewSelected[row.id]; }).length;
+    box.disabled = !list.length;
+    box.checked = list.length > 0 && picked === list.length;
+    box.indeterminate = picked > 0 && picked < list.length;
+  }
+
+  function renderReviewTable() {
+    var rows = pendingRows();
+    var body = $('reviewTableBody');
+    if (!rows.length) {
+      body.innerHTML = '<tr class="review-table__empty"><td colspan="7">暂无待同步账号</td></tr>';
+    } else {
+      body.innerHTML = rows.map(function (row) {
+        var checked = state.reviewSelected[row.id] ? ' checked' : '';
+        return '<tr data-id="' + escapeHtml(row.id) + '">' +
+          '<td class="col-check"><label class="cell-check"><input type="checkbox" data-review-check' + checked + ' aria-label="选择' + escapeHtml(row.nickname) + '" /></label></td>' +
+          '<td><span class="user-cell"><span class="user-cell__avatar" aria-hidden="true"></span><span class="user-cell__name">' + escapeHtml(row.nickname) + '</span></span></td>' +
+          '<td class="col-account">' + escapeHtml(row.account) + '</td>' +
+          '<td title="' + escapeHtml(joinList(row.departments)) + '">' + escapeHtml(joinList(row.departments)) + '</td>' +
+          '<td title="' + escapeHtml(joinList(row.roles)) + '">' + escapeHtml(joinList(row.roles)) + '</td>' +
+          '<td title="' + escapeHtml(joinList(row.dataGroups)) + '">' + escapeHtml(joinList(row.dataGroups)) + '</td>' +
+          '<td>' + escapeHtml(row.updatedAt) + '</td>' +
+        '</tr>';
+      }).join('');
+    }
+    syncReviewCheckAll(rows);
+  }
+
+  function openReview() {
+    state.reviewSelected = {};
+    setReviewError(false);
+    renderReviewTable();
+    UI.openModal('reviewModal');
+  }
+
+  function closeReview() {
+    UI.closeModal('reviewModal');
+    state.reviewSelected = {};
+    setReviewError(false);
+  }
+
+  function submitReview() {
+    var ids = Object.keys(state.reviewSelected).filter(function (id) { return state.reviewSelected[id]; });
+    if (!ids.length) {
+      setReviewError(true);
+      return;
+    }
+    var now = formatDateTime(new Date());
+    ids.forEach(function (id) {
+      var row = findRow(id);
+      if (!row || !row.pendingSync) return;
+      pushEditLog(row.id, '同步状态', '未交接', '已交接', '用户A', now);
+      row.departments = [];
+      row.roles = [];
+      row.dataGroups = [];
+      row.pendingSync = false;
+      row.updatedAt = now;
+    });
+    closeReview();
+    UI.showToast('已同步', 'success');
+    renderTable();
+  }
+
+  $('queryBtn').addEventListener('click', function () {
+    applyFilters();
+    renderTable();
+  });
+
+  $('resetBtn').addEventListener('click', function () {
+    state.draft = {
+      nickname: '',
+      departments: [],
+      roles: [],
+      dataGroups: [],
+      status: ''
+    };
+    $('filterNickname').value = '';
+    if (nicknameClear && nicknameClear.sync) nicknameClear.sync();
+    if (deptFilter && deptFilter.render) deptFilter.render();
+    if (roleFilter && roleFilter.render) roleFilter.render();
+    if (dataGroupFilter && dataGroupFilter.render) dataGroupFilter.render();
+    if (statusFilter && statusFilter.syncLabel) statusFilter.syncLabel('');
+    applyFilters();
+    renderTable();
+  });
+
+  $('tableBody').addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    var tr = btn.closest('tr[data-id]');
+    if (!tr) return;
+    var row = findRow(tr.getAttribute('data-id'));
+    if (!row) return;
+    var action = btn.getAttribute('data-action');
+    if (action === 'edit') openEdit(row);
+    else if (action === 'impersonate') openImpersonate(row);
+    else if (action === 'log') openLogDrawer(row);
+  });
+
+  document.querySelectorAll('[data-close="editModal"]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      UI.closeModal('editModal');
+    });
+  });
+  $('editSubmit').addEventListener('click', submitEdit);
+
+  document.querySelectorAll('[data-close="impersonateModal"]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      state.impersonateId = null;
+      UI.closeModal('impersonateModal');
+    });
+  });
+  $('impersonateOk').addEventListener('click', confirmImpersonate);
+
+  $('logDrawerClose').addEventListener('click', closeLogDrawer);
+  $('reviewBtn').addEventListener('click', openReview);
+  document.querySelectorAll('[data-close="reviewModal"]').forEach(function (btn) {
+    btn.addEventListener('click', closeReview);
+  });
+  $('reviewSubmit').addEventListener('click', submitReview);
+  $('reviewCheckAll').addEventListener('change', function () {
+    var on = this.checked;
+    pendingRows().forEach(function (row) {
+      state.reviewSelected[row.id] = on;
+    });
+    if (on) setReviewError(false);
+    renderReviewTable();
+  });
+  $('reviewTableBody').addEventListener('change', function (e) {
+    var box = e.target.closest('[data-review-check]');
+    if (!box) return;
+    var tr = box.closest('tr[data-id]');
+    if (!tr) return;
+    state.reviewSelected[tr.getAttribute('data-id')] = box.checked;
+    if (box.checked) setReviewError(false);
+    syncReviewCheckAll();
+  });
+
+  applyFilters();
+  renderTable();
+})();

@@ -1,0 +1,177 @@
+/* 顶栏：任务中心 / 帮助中心预留跳转，用户浮层预留退出登录 */
+.header-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--color-text-header);
+  opacity: 0.45;
+  flex-shrink: 0;
+}
+
+/* 说明气泡留在图标层；打开的用户浮层盖在气泡之上 */
+.header-icon {
+  z-index: 1;
+}
+
+.header-right,
+.user-menu {
+  display: flex;
+  align-items: center;
+}
+
+.header-right {
+  height: var(--header-height, 56px);
+}
+
+.user-menu {
+  position: relative;
+  height: var(--header-height, 56px);
+}
+
+.user-menu.is-open {
+  z-index: 2;
+}
+
+/* 用户浮层打开时，图标说明气泡不再叠到浮层上 */
+.header-right:has(.user-menu.is-open) .header-icon[data-tip]::after,
+.header-right:has(.user-menu.is-open) .header-icon[data-tip]::before {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.user-chip {
+  align-items: center;
+}
+
+.user-chip .user-name {
+  display: inline-flex;
+  align-items: center;
+  height: var(--header-avatar-size, 32px);
+  line-height: var(--header-avatar-size, 32px);
+}
+
+.user-chip .chevron {
+  display: block;
+  transition: transform 0.2s;
+}
+
+.user-menu.is-open .chevron {
+  transform: rotate(180deg);
+}
+
+.user-panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 240px;
+  background: var(--color-bg-container);
+  border-radius: var(--border-radius-medium, 4px);
+  box-shadow: var(--shadow-2);
+  z-index: 2;
+  overflow: hidden;
+}
+
+.user-menu.is-open .user-panel {
+  display: block;
+}
+
+.user-panel__profile {
+  display: flex;
+  align-items: center;
+  gap: var(--size-3, 12px);
+  padding: var(--size-4, 16px);
+}
+
+.user-panel .user-avatar {
+  width: var(--size-10, 40px);
+  height: var(--size-10, 40px);
+}
+
+.user-panel__name {
+  font-size: var(--font-size-body-2, 14px);
+  line-height: 22px;
+  color: var(--color-text-1);
+}
+
+.user-panel__account {
+  margin-top: 2px;
+  font-size: var(--font-size-body-1, 12px);
+  line-height: 20px;
+  color: var(--color-text-3);
+  white-space: nowrap;
+}
+
+.user-panel__logout {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 40px;
+  font-size: var(--font-size-body-2, 14px);
+  line-height: 22px;
+  color: var(--color-text-2);
+  background: transparent;
+}
+
+.user-panel__logout::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: var(--size-4, 16px);
+  right: var(--size-4, 16px);
+  height: 1px;
+  background: var(--color-border-2);
+}
+
+.user-panel__logout:hover {
+  background: transparent;
+  color: var(--color-primary);
+}
+
+/* 投放系统 · 侧栏上传图标 */
+img.menu-icon {
+  object-fit: contain;
+  display: block;
+}
+
+/* 首页插画占位：铺在页面底上，水平垂直居中 */
+.main--home {
+  padding: 0;
+}
+
+.home-hero {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-hero__art,
+.page-placeholder__art {
+  max-width: calc(100% - 48px);
+  height: auto;
+  user-select: none;
+}
+
+.home-hero__art {
+  width: 480px;
+}
+
+.page-placeholder__art {
+  width: 240px;
+}
+
+/* 未搭建页：插画居中，尺寸与首页一致 */
+.main--empty {
+  padding: 0;
+}
+
+.page-placeholder {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

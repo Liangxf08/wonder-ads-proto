@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>登录 - Wonder Ads</title>
+  <link rel="icon" href="素材/logo.png" type="image/png" />
+  <link rel="stylesheet" href="design-tokens.css" />
+  <link rel="stylesheet" href="product-common.css" />
+  <link rel="stylesheet" href="login.css" />
+</head>
+<body class="page-login">
+  <main class="login-stage">
+    <section class="login-card" data-panel="chooser">
+      <div class="login-brand">
+        <img src="素材/logo.png" width="32" height="32" alt="" />
+        <span>Wonder Ads</span>
+      </div>
+      <button class="btn btn--primary login-btn" type="button" data-open-feishu>飞书授权登录</button>
+      <button class="btn btn--default login-btn" type="button" data-open-password>账密登录</button>
+    </section>
+
+    <form class="login-card" data-panel="password" hidden>
+      <div class="login-brand">
+        <img src="素材/logo.png" width="32" height="32" alt="" />
+        <span>Wonder Ads</span>
+      </div>
+      <div class="form-item">
+        <div class="form-item__control login-field">
+          <span class="login-field__icon" aria-hidden="true">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5.5" r="2.2"/><path d="M3.2 13.2c.7-2.3 2.5-3.5 4.8-3.5s4.1 1.2 4.8 3.5"/></svg>
+          </span>
+          <input class="input" name="account" type="text" autocomplete="username" placeholder="请输入账号" />
+          <p class="form-item__error">请输入账号</p>
+        </div>
+      </div>
+      <div class="form-item">
+        <div class="form-item__control login-field login-field--password">
+          <span class="login-field__icon" aria-hidden="true">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.4" y="7" width="9.2" height="6.2" rx="1.2"/><path d="M5.4 7V5.2a2.6 2.6 0 0 1 5.2 0V7"/></svg>
+          </span>
+          <input class="input" name="password" type="password" autocomplete="current-password" placeholder="请输入密码" />
+          <button class="login-field__eye" type="button" aria-label="显示密码" aria-pressed="false">
+            <svg class="icon-eye" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 8s2.2-3.5 6.5-3.5S14.5 8 14.5 8s-2.2 3.5-6.5 3.5S1.5 8 1.5 8z"/><circle cx="8" cy="8" r="1.8"/></svg>
+            <svg class="icon-eye-off" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.2 2.8l11.6 10.4"/><path d="M6.4 6.6A1.8 1.8 0 0 0 8 9.8c.4 0 .7-.1 1-.3"/><path d="M4.1 5.2C2.7 6.2 1.5 8 1.5 8s2.2 3.5 6.5 3.5c.9 0 1.8-.2 2.5-.6"/><path d="M7.1 4.6c.3-.1.6-.1.9-.1 4.3 0 6.5 3.5 6.5 3.5s-.5.8-1.4 1.6"/></svg>
+          </button>
+          <p class="form-item__error">请输入密码</p>
+        </div>
+      </div>
+      <button class="btn btn--primary login-btn" type="submit">登录</button>
+      <button class="btn btn--default login-btn" type="button" data-open-feishu>飞书授权登录</button>
+    </form>
+  </main>
+
+  <div class="auth-stage" data-panel="feishu" hidden>
+    <div class="auth-frame">
+      <img src="素材/飞书授权.png" alt="飞书授权" />
+      <button class="auth-hit auth-hit--deny" type="button" data-auth="deny">拒绝</button>
+      <button class="auth-hit auth-hit--allow" type="button" data-auth="allow">授权</button>
+    </div>
+  </div>
+
+  <script src="login.js"></script>
+</body>
+</html>

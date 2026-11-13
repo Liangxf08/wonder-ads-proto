@@ -1,0 +1,158 @@
+/* 投放系统 · 用户管理 */
+
+#nicknameWrap .input {
+  padding-right: 32px;
+}
+
+.user-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.user-cell__avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--color-fill-4);
+}
+
+.user-cell__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.data-table .col-account {
+  font-variant-numeric: tabular-nums;
+}
+
+.review-entry {
+  position: relative;
+}
+
+.review-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--color-danger-6);
+  color: var(--color-white);
+  font-size: var(--font-size-body-1);
+  line-height: 18px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.review-badge[hidden] {
+  display: none;
+}
+
+#reviewModal .modal__body {
+  padding-bottom: 24px;
+}
+
+.review-tip {
+  margin: 0 0 16px;
+  font-size: var(--font-size-body-2);
+  line-height: 22px;
+  color: var(--color-text-2);
+}
+
+.review-tip.is-error {
+  color: var(--color-danger-6);
+}
+
+.review-table-shell {
+  overflow: hidden;
+}
+
+.review-table {
+  width: 100%;
+}
+
+.review-table__empty td {
+  height: 88px;
+  text-align: center;
+  color: var(--color-text-3);
+}
+
+#logDrawer .drawer {
+  display: flex;
+  flex-direction: column;
+}
+
+#logDrawer .drawer__body {
+  padding-bottom: 16px;
+}
+
+#logDrawer .drawer__pager {
+  flex-shrink: 0;
+  border-top: 1px solid var(--color-border-2);
+  background: var(--color-bg-container);
+  padding: 12px 24px;
+}
+
+#logPagination[hidden] {
+  display: none !important;
+}
+
+.log-table-shell {
+  border: 1px solid var(--color-border-2);
+  border-radius: var(--border-radius-medium);
+  overflow: hidden;
+}
+
+.log-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.log-table th,
+.log-table td {
+  height: 44px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border-2);
+  font-size: var(--font-size-body-2);
+  text-align: left;
+  vertical-align: top;
+}
+
+.log-table th {
+  background: var(--color-fill-1);
+  color: var(--color-text-2);
+  font-weight: 600;
+}
+
+.log-table tr:last-child td {
+  border-bottom: none;
+}
+
+.log-table__change {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--color-text-1);
+}
+
+.log-table__change-item {
+  line-height: 22px;
+  word-break: break-all;
+}
+
+.log-table__empty {
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--color-text-3);
+  font-size: var(--font-size-body-2);
+}
