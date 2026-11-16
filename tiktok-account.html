@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TikTok - Wonder Ads</title>
+  <link rel="icon" href="素材/logo.png" type="image/png" />
+  <link rel="stylesheet" href="design-tokens.css" />
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <link rel="stylesheet" href="product-common.css" />
+  <link rel="stylesheet" href="col-resize.css" />
+  <link rel="stylesheet" href="shell.css" />
+  <link rel="stylesheet" href="tiktok-account.css" />
+</head>
+<body>
+  <div class="app" id="appShell">
+    <header class="header"></header>
+    <div class="body">
+      <aside class="sidebar" id="sidebar"></aside>
+      <main class="main" data-main>
+        <div class="content-card">
+          <div class="filter-panel">
+            <div class="page-tabs" role="tablist" aria-label="TikTok 广告账户">
+              <button class="page-tabs__item is-active" type="button" role="tab" aria-selected="true" data-tab="account" id="tabAccount">广告账户</button>
+              <button class="page-tabs__item" type="button" role="tab" aria-selected="false" data-tab="auth" id="tabAuth">授权用户</button>
+            </div>
+            <div class="filter-bar" id="filterBarAccount">
+              <button class="filter-gear" type="button" id="filterSettingBtn" aria-label="筛选设置">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18l-7 8v5l-4 2v-7L3 5z"/></svg>
+              </button>
+
+              <div class="filter-item" id="accountKeywordWrap" data-filter="account">
+                <label class="select-trigger select-trigger--input" for="accountKeyword">
+                  <span class="select-trigger__prefix">广告账户：</span>
+                  <input class="select-trigger__field" id="accountKeyword" type="text" placeholder="请输入" autocomplete="off" />
+                </label>
+                <button class="select-clear" type="button" id="accountKeywordClear" aria-label="清除">
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l6 6M9 3L3 9"/></svg>
+                </button>
+              </div>
+
+              <div class="filter-item" id="productTypeWrap" data-filter="productType">
+                <button class="select-trigger" type="button" id="productTypeTrigger">
+                  <span class="select-trigger__text" id="productTypeLabel">平台：<span class="muted">请选择</span></span>
+                  <svg class="select-trigger__arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+                </button>
+                <button class="select-clear" type="button" id="productTypeClear" aria-label="清除">
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l6 6M9 3L3 9"/></svg>
+                </button>
+                <div class="multi-panel multi-panel--simple" id="productTypePanel">
+                  <div class="multi-panel__list" id="productTypeList"></div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="productWrap" data-filter="product">
+                <button class="select-trigger" type="button" id="productTrigger">
+                  <span class="select-trigger__text" id="productLabel">产品名称：<span class="muted">请选择</span></span>
+                  <svg class="select-trigger__arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+                </button>
+                <button class="select-clear" type="button" id="productClear" aria-label="清除">
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l6 6M9 3L3 9"/></svg>
+                </button>
+                <div class="multi-panel" id="productPanel">
+                  <div class="multi-panel__left">
+                    <div class="multi-panel__search">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>
+                      <input type="text" id="productSearch" placeholder="搜索" autocomplete="off" />
+                    </div>
+                    <div class="multi-panel__toolbar">
+                      <button class="multi-panel__link" type="button" id="productSelectAll">全选</button>
+                    </div>
+                    <div class="multi-panel__list" id="productList"></div>
+                  </div>
+                  <div class="multi-panel__right">
+                    <div class="multi-panel__toolbar multi-panel__toolbar--right">
+                      <span id="productCount">已选择 0 项</span>
+                      <button class="multi-panel__link" type="button" id="productPanelClear">清空</button>
+                    </div>
+                    <div class="multi-panel__list" id="productSelected"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="optimizerWrap" data-filter="optimizer">
+                <button class="select-trigger" type="button" id="optimizerTrigger">
+                  <span class="select-trigger__text" id="optimizerLabel">优化师：<span class="muted">请选择</span></span>
+                  <svg class="select-trigger__arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+                </button>
+                <button class="select-clear" type="button" id="optimizerClear" aria-label="清除">
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l6 6M9 3L3 9"/></svg>
+                </button>
+                <div class="multi-panel" id="optimizerPanel">
+                  <div class="multi-panel__left">
+                    <div class="multi-panel__search">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>
+                      <input type="text" id="optimizerSearch" placeholder="搜索" autocomplete="off" />
+                    </div>
+                    <div class="multi-panel__toolbar">
+                      <button class="multi-panel__link" type="button" id="optimizerSelectAll">全选</button>
+                    </div>
+                    <div class="multi-panel__list" id="optimizerList"></div>
+                  </div>
+                  <div class="multi-panel__right">
+                    <div class="multi-panel__toolbar multi-panel__toolbar--right">
+                      <span id="optimizerCount">已选择 0 项</span>
+                      <button class="multi-panel__link" type="button" id="optimizerPanelClear">清空</button>
+                    </div>
+                    <div class="multi-panel__list" id="optimizerSelected"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="companyWrap" data-filter="company" hidden>
+                <button class="select-trigger" type="button" id="companyTrigger">
+                  <span class="select-trigger__text" id="companyLabel">账户主体：<span class="muted">请选择</span></span>
+                  <svg class="select-trigger__arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+                </button>
+                <button class="select-clear" type="button" id="companyClear" aria-label="清除">
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l6 6M9 3L3 9"/></svg>
+                </button>
+                <div class="multi-panel multi-panel--simple" id="companyPanel">
+                  <div class="multi-panel__list" id="companyList"></div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="accountStatusWrap" data-filter="accountStatus" hidden>
+                <button class="select-trigger" type="button" id="accountStatusTrigger">
+                  <span class="select-trigger__text" id="accountStatusLabel">账户状态：<span class="muted">请选择</span></span>
+                  <svg class="select-trigger__arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+                </button>
+                <button class="select-clear" type="button" id="accountStatusClear" aria-label="清除">
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l6 6M9 3L3 9"/></svg>
+                </button>
+                <div class="multi-panel" id="accountStatusPanel">
+                  <div class="multi-panel__left">
+                    <div class="multi-panel__search">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>
+                      <input type="text" id="accountStatusSearch" placeholder="搜索" autocomplete="off" />
+                    </div>
+                    <div class="multi-panel__toolbar">
+                      <button class="multi-panel__link" type="button" id="accountStatusSelectAll">全选</button>
+                    </div>
+                    <div class="multi-panel__list" id="accountStatusList"></div>
+                  </div>
+                  <div class="multi-panel__right">
+                    <div class="multi-panel__toolbar multi-panel__toolbar--right">
+                      <span id="accountStatusCount">已选择 0 项</span>
+                      <button class="multi-panel__link" type="button" id="accountStatusPanelClear">清空</button>
+                    </div>
+                    <div class="multi-panel__list" id="accountStatusSelected"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="authUserWrap" data-filter="authUser" hidden>
+                <button class="select-trigger" type="button" id="authUserTrigger">
+                  <span class="select-trigger__text" id="authUserLabel">授权用户：<span class="muted">请选择</span></span>
+                  <svg class="select-trigger__arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+                </button>
+                <button class="select-clear" type="button" id="authUserClear" aria-label="清除">
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l6 6M9 3L3 9"/></svg>
+                </button>
+                <div class="multi-panel" id="authUserPanel">
+                  <div class="multi-panel__left">
+                    <div class="multi-panel__search">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>
+                      <input type="text" id="authUserSearch" placeholder="搜索" autocomplete="off" />
+                    </div>
+                    <div class="multi-panel__toolbar">
+                      <button class="multi-panel__link" type="button" id="authUserSelectAll">全选</button>
+                    </div>
+                    <div class="multi-panel__list" id="authUserList"></div>
+                  </div>
+                  <div class="multi-panel__right">
+                    <div class="multi-panel__toolbar multi-panel__toolbar--right">
+                      <span id="authUserCount">已选择 0 项</span>
+                      <button class="multi-panel__link" type="button" id="authUserPanelClear">清空</button>
+                    </div>
+                    <div class="multi-panel__list" id="authUserSelected"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="filter-item" id="authStatusWrap" data-filter="authStatus" hidden>
+                <button class="select-trigger" type="button" id="authStatusTrigger">
+                  <span class="select-trigger__text" id="authStatusLabel">授权状态：<span class="muted">请选择</span></span>
+                  <svg class="select-trigger__arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+                </button>
+                <button class="select-clear" type="button" id="authStatusClear" aria-label="清除">
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l6 6M9 3L3 9"/></svg>
+                </button>
+                <div class="single-panel" id="authStatusPanel">
+                  <button class="single-option" type="button" data-value="已授权">已授权</button>
+                  <button class="single-option" type="button" data-value="已失效">已失效</button>
+                </div>
+              </div>
+
+              <div class="filter-item" id="statusWrap" data-filter="status" hidden>
+                <button class="select-trigger" type="button" id="statusTrigger">
+                  <span class="select-trigger__text" id="statusLabel">投放状态：<span class="muted">请选择</span></span>
+                  <svg class="select-trigger__arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+                </button>
+                <button class="select-clear" type="button" id="statusClear" aria-label="清除">
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l6 6M9 3L3 9"/></svg>
+                </button>
+                <div class="single-panel" id="statusPanel">
+                  <button class="single-option" type="button" data-value="启用">启用</button>
+                  <button class="single-option" type="button" data-value="禁用">禁用</button>
+                </div>
+              </div>
+
+              <div class="filter-actions">
+                <button class="btn btn--default" type="button" id="resetBtn">重置</button>
+                <button class="btn btn--primary" type="button" id="queryBtn">查询</button>
+              </div>
+            </div>
+
+            <div class="filter-bar" id="filterBarAuth" hidden>
+              <div class="filter-item" id="authNameWrap">
+                <input class="input input-clearable" id="authNameKeyword" type="text" placeholder="用户名" autocomplete="off" />
+                <button class="select-clear" type="button" id="authNameClear" aria-label="清除">
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l6 6M9 3L3 9"/></svg>
+                </button>
+              </div>
+              <div class="filter-item" id="authEmailWrap">
+                <input class="input input-clearable" id="authEmailKeyword" type="text" placeholder="邮箱" autocomplete="off" />
+                <button class="select-clear" type="button" id="authEmailClear" aria-label="清除">
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l6 6M9 3L3 9"/></svg>
+                </button>
+              </div>
+              <div class="filter-item" id="authOperatorWrap">
+                <button class="select-trigger" type="button" id="authOperatorTrigger">
+                  <span class="select-trigger__text" id="authOperatorLabel">操作人：<span class="muted">请选择</span></span>
+                  <svg class="select-trigger__arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+                </button>
+                <div class="multi-panel" id="authOperatorPanel">
+                  <div class="multi-panel__left">
+                    <div class="multi-panel__search">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>
+                      <input type="text" id="authOperatorSearch" placeholder="搜索" autocomplete="off" />
+                    </div>
+                    <div class="multi-panel__toolbar">
+                      <button class="multi-panel__link" type="button" id="authOperatorSelectAll">全选</button>
+                    </div>
+                    <div class="multi-panel__list" id="authOperatorList"></div>
+                  </div>
+                  <div class="multi-panel__right">
+                    <div class="multi-panel__toolbar multi-panel__toolbar--right">
+                      <span id="authOperatorCount">已选择 0 项</span>
+                      <button class="multi-panel__link" type="button" id="authOperatorClear">清空</button>
+                    </div>
+                    <div class="multi-panel__list" id="authOperatorSelected"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="filter-item" id="authAutoWrap">
+                <button class="select-trigger" type="button" id="authAutoTrigger">
+                  <span class="select-trigger__text" id="authAutoLabel">自动授权：<span class="muted">请选择</span></span>
+                  <svg class="select-trigger__arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+                </button>
+                <button class="select-clear" type="button" id="authAutoClear" aria-label="清除">
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l6 6M9 3L3 9"/></svg>
+                </button>
+                <div class="single-panel" id="authAutoPanel">
+                  <button class="single-option" type="button" data-value="开启">开启</button>
+                  <button class="single-option" type="button" data-value="关闭">关闭</button>
+                </div>
+              </div>
+              <div class="filter-actions">
+                <button class="btn btn--default" type="button" id="authResetBtn">重置</button>
+                <button class="btn btn--primary" type="button" id="authSearchBtn">查询</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="data-panel has-toolbar" id="dataPanelAccount">
+            <div class="account-toolbar">
+              <div class="account-toolbar__side">
+                <button class="btn btn--primary" type="button" id="addAccountBtn">添加账户</button>
+                <button class="btn btn--default" type="button" id="importBtn">导入更新</button>
+                <div class="batch-wrap" id="batchWrap">
+                  <button class="btn btn--default btn--dropdown" type="button" id="batchBtn" disabled>
+                    批量操作
+                    <svg class="btn__arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+                  </button>
+                  <div class="batch-menu" id="batchMenu" role="menu">
+                    <button class="batch-menu__item" type="button" role="menuitem" data-batch="product">修改产品</button>
+                    <button class="batch-menu__item" type="button" role="menuitem" data-batch="optimizer">修改优化师</button>
+                    <button class="batch-menu__item" type="button" role="menuitem" data-batch="status">修改投放状态</button>
+                    <button class="batch-menu__item" type="button" role="menuitem" data-batch="auth">修改授权用户</button>
+                  </div>
+                </div>
+              </div>
+              <div class="account-toolbar__side">
+                <span class="tooltip-wrap" data-tip="刷新">
+                  <button class="toolbar-icon-btn" type="button" id="refreshBtn" aria-label="刷新">
+                    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="4" aria-hidden="true"><path d="M38.837 18C36.463 12.136 30.715 8 24 8 15.163 8 8 15.163 8 24s7.163 16 16 16c7.455 0 13.72-5.1 15.496-12M40 8v10H30"/></svg>
+                  </button>
+                </span>
+                <span class="tooltip-wrap" data-tip="自定义列">
+                  <button class="toolbar-icon-btn" type="button" id="metricsBtn" aria-label="自定义列">
+                    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round" aria-hidden="true"><path d="M7 7H20V20H7z"/><path d="M28 7H41V20H28z"/><path d="M7 28H20V41H7z"/><path d="M28 28H41V41H28z"/></svg>
+                  </button>
+                </span>
+              </div>
+            </div>
+            <div class="table-shell">
+              <div class="table-wrap">
+                <table class="data-table" id="accountTable">
+                  <colgroup id="tableColgroup"></colgroup>
+                  <thead id="tableHead"></thead>
+                  <tbody id="tableBody"></tbody>
+                </table>
+                <div class="empty-tip" id="emptyTip" hidden>暂无数据</div>
+              </div>
+            </div>
+            <div class="pagination" id="pagination"></div>
+          </div>
+
+          <div class="data-panel" id="dataPanelAuth" hidden>
+            <div class="table-shell">
+              <div class="table-wrap">
+                <table class="data-table" id="authTable">
+                  <colgroup>
+                    <col data-col-width="100" />
+                    <col data-col-width="180" />
+                    <col data-col-width="220" />
+                    <col data-col-width="120" />
+                    <col data-col-width="100" />
+                    <col data-col-width="180" />
+                    <col data-col-width="100" />
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th>自动授权</th>
+                      <th>用户名</th>
+                      <th>邮箱</th>
+                      <th>授权账户数</th>
+                      <th>操作人</th>
+                      <th>更新时间</th>
+                      <th class="col-action">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="authBody"></tbody>
+                </table>
+                <div class="empty-tip" id="authEmptyTip" hidden>暂无数据</div>
+              </div>
+            </div>
+            <div class="pagination" id="authPagination"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal-mask modal-mask--confirm" id="authDeleteModal" aria-hidden="true">
+    <div class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="authDeleteTitle">
+      <button class="confirm-modal__close" type="button" id="authDeleteClose" aria-label="关闭">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 2l8 8M10 2L2 10"/></svg>
+      </button>
+      <div class="confirm-modal__main">
+        <span class="confirm-modal__icon confirm-modal__icon--danger" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M24 44c11.046 0 20-8.954 20-20S35.046 4 24 4 4 12.954 4 24s8.954 20 20 20Zm4.955-27.771-4.95 4.95-4.95-4.95a1 1 0 0 0-1.414 0l-1.414 1.414a1 1 0 0 0 0 1.414l4.95 4.95-4.95 4.95a1 1 0 0 0 0 1.414l1.414 1.414a1 1 0 0 0 1.414 0l4.95-4.95 4.95 4.95a1 1 0 0 0 1.414 0l1.414-1.414a1 1 0 0 0 0-1.414l-4.95-4.95 4.95-4.95a1 1 0 0 0 0-1.414l-1.414-1.414a1 1 0 0 0-1.414 0Z"/></svg>
+        </span>
+        <div class="confirm-modal__content">
+          <h2 class="confirm-modal__title" id="authDeleteTitle">删除确认</h2>
+          <p class="confirm-modal__body" id="authDeleteBody">此操作不可撤销，确认删除吗？</p>
+        </div>
+      </div>
+      <div class="confirm-modal__footer">
+        <button class="btn btn--default" type="button" id="authDeleteCancel">取消</button>
+        <button class="btn btn--primary" type="button" id="authDeleteOk">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask" id="authPickModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="authPickTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="authPickTitle">修改授权用户</h2>
+        <button class="modal__close" type="button" id="authPickClose" aria-label="关闭">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 2l8 8M10 2L2 10"/></svg>
+        </button>
+      </div>
+      <div class="modal__body">
+        <div class="auth-pick-tip" role="note">
+          <svg class="auth-pick-tip__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="8" r="6.667" fill="currentColor"/>
+            <path fill="var(--color-white)" d="M7.25 4.35a.75.75 0 1 1 1.5 0 .75.75 0 0 1-1.5 0ZM7.3 6.5h1.4v5.15H7.3V6.5Z"/>
+          </svg>
+          <span id="authPickTipText">系统会使用所选授权账号的 Token，对广告账户进行广告创建、编辑等 API 操作。</span>
+        </div>
+        <div class="auth-pick-table-shell">
+          <div class="table-wrap">
+            <table class="data-table" id="authPickTable">
+              <colgroup>
+                <col class="col-check" data-col-width="48" />
+                <col data-col-width="160" />
+                <col data-col-width="200" />
+                <col data-col-width="100" />
+                <col data-col-width="180" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th class="col-check"></th>
+                  <th>用户名</th>
+                  <th>邮箱</th>
+                  <th>操作人</th>
+                  <th>授权时间</th>
+                </tr>
+              </thead>
+              <tbody id="authPickBody"></tbody>
+            </table>
+            <div class="empty-tip" id="authPickEmpty" hidden>暂无数据</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--default" type="button" id="authPickCancel">取消</button>
+        <button class="btn btn--primary" type="button" id="authPickSave">提交</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask modal-mask--dropdown" id="oauthPickModal" aria-hidden="true">
+    <div class="modal modal--large" role="dialog" aria-modal="true" aria-labelledby="oauthPickTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="oauthPickTitle">选择授权账户</h2>
+        <button class="modal__close" type="button" id="oauthPickClose" aria-label="关闭">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 2l8 8M10 2L2 10"/></svg>
+        </button>
+      </div>
+      <div class="modal__body oauth-pick-body">
+        <div class="oauth-pick-filter">
+          <div class="filter-item" id="oauthKwWrap">
+            <label class="select-trigger select-trigger--input" for="oauthKw">
+              <span class="select-trigger__prefix">广告账户：</span>
+              <input class="select-trigger__field" id="oauthKw" type="text" placeholder="请输入" autocomplete="off" />
+            </label>
+            <button class="select-clear" type="button" id="oauthKwClear" aria-label="清除">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l6 6M9 3L3 9"/></svg>
+            </button>
+          </div>
+          <div class="filter-item" id="oauthStatusWrap">
+            <button class="select-trigger" type="button" id="oauthStatusTrigger">
+              <span class="select-trigger__text" id="oauthStatusLabel">授权状态：<span class="muted">请选择</span></span>
+              <svg class="select-trigger__arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+            </button>
+            <button class="select-clear" type="button" id="oauthStatusClear" aria-label="清除">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l6 6M9 3L3 9"/></svg>
+            </button>
+            <div class="single-panel" id="oauthStatusPanel">
+              <button class="single-option" type="button" data-value="已授权">已授权</button>
+              <button class="single-option" type="button" data-value="未授权">未授权</button>
+            </div>
+          </div>
+          <div class="filter-actions">
+            <button class="btn btn--primary" type="button" id="oauthSearchBtn">查询</button>
+          </div>
+        </div>
+        <div class="oauth-pick-table-shell">
+          <div class="table-wrap">
+            <table class="data-table" id="oauthPickTable">
+              <colgroup>
+                <col class="col-check" data-col-width="48" />
+                <col data-col-width="200" />
+                <col data-col-width="200" />
+                <col data-col-width="200" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th class="col-check"><span class="cell-check"><input type="checkbox" id="oauthCheckAll" aria-label="全选" /></span></th>
+                  <th>账户ID</th>
+                  <th>账户名称</th>
+                  <th>授权状态</th>
+                </tr>
+              </thead>
+              <tbody id="oauthPickBody"></tbody>
+            </table>
+            <div class="empty-tip" id="oauthPickEmpty" hidden>暂无数据</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <div class="oauth-pick-count">已选 <span id="oauthSelectedCount">0</span> / 可选 <span id="oauthAvailableCount">0</span></div>
+        <div class="oauth-pick-footer-actions">
+          <button class="btn btn--default" type="button" id="oauthPickCancel">取消</button>
+          <button class="btn btn--primary" type="button" id="oauthPickSave">提交</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask modal-mask--dropdown" id="filterSettingModal" aria-hidden="true">
+    <div class="modal modal--form modal--filter-settings" role="dialog" aria-modal="true" aria-labelledby="filterSettingTitle">
+      <div class="modal__header">
+        <div class="modal__title" id="filterSettingTitle">筛选设置</div>
+        <button class="modal__close" type="button" data-close="filterSettingModal" aria-label="关闭">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 2l8 8M10 2L2 10"/></svg>
+        </button>
+      </div>
+      <div class="modal__body">
+        <div class="filter-check-grid" id="filterSettingGrid"></div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--default" type="button" data-close="filterSettingModal">取消</button>
+        <button class="btn btn--primary" type="button" id="filterSettingSubmit">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask" id="metricModal" aria-hidden="true">
+    <div class="modal metric-modal" role="dialog" aria-modal="true" aria-labelledby="metricModalTitle">
+      <div class="modal__header">
+        <div class="modal__title" id="metricModalTitle">自定义列</div>
+        <button class="modal__close" type="button" data-close="metricModal" aria-label="关闭">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 2l8 8M10 2L2 10"/></svg>
+        </button>
+      </div>
+      <div class="modal__body metric-modal__body">
+        <div class="metric-layout">
+          <div class="metric-main">
+            <div class="metric-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>
+              <input type="text" id="metricSearch" placeholder="搜索" autocomplete="off" />
+            </div>
+            <div class="metric-picker">
+              <nav class="metric-cats" id="metricCats" aria-label="指标分组"></nav>
+              <div class="metric-options" id="metricOptions"></div>
+            </div>
+          </div>
+          <div class="metric-selected">
+            <div class="metric-selected__head">
+              <span id="metricSelectedCount">已选 0 列</span>
+              <button class="btn btn--text" type="button" id="metricClear">清空</button>
+            </div>
+            <div class="metric-selected__list" id="metricSelectedList"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--default" type="button" data-close="metricModal">取消</button>
+        <button class="btn btn--primary" type="button" id="metricSubmit">提交</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask" id="importModal" aria-hidden="true">
+    <div class="modal modal--large" role="dialog" aria-modal="true" aria-labelledby="importTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="importTitle">导入更新</h2>
+        <button class="modal__close" type="button" id="importClose" aria-label="关闭">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 2l8 8M10 2L2 10"/></svg>
+        </button>
+      </div>
+      <div class="modal__body">
+        <div class="import-actions">
+          <button class="btn btn--primary" type="button" id="uploadBtn">上传文件</button>
+          <button class="link" type="button" id="downloadTemplateBtn">下载模板</button>
+          <input type="file" id="importFile" accept=".csv,.xls,text/csv,application/vnd.ms-excel" hidden />
+        </div>
+        <div class="auth-pick-tip" id="importTip" role="note">
+          <svg class="auth-pick-tip__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="8" r="6.667" fill="currentColor"/>
+            <path fill="var(--color-white)" d="M7.25 4.35a.75.75 0 1 1 1.5 0 .75.75 0 0 1-1.5 0ZM7.3 6.5h1.4v5.15H7.3V6.5Z"/>
+          </svg>
+          <span>产品ID：Android、iOS 产品填写包名，TikTok Minis 填写 Client key</span>
+        </div>
+        <div class="import-alert" id="importAlert" role="alert">
+          <svg class="import-alert__icon import-alert__icon--error" viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="8" r="6.667" fill="currentColor"/>
+            <path fill="var(--color-white)" d="M5.05 4.34a.6.6 0 0 1 .85 0L8 6.44l2.1-2.1a.6.6 0 0 1 .85.85L8.85 7.29l2.1 2.1a.6.6 0 0 1-.85.85L8 8.14l-2.1 2.1a.6.6 0 0 1-.85-.85l2.1-2.1-2.1-2.1a.6.6 0 0 1 0-.85Z"/>
+          </svg>
+          <svg class="import-alert__icon import-alert__icon--success" viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="8" r="6.667" fill="currentColor"/>
+            <path fill="var(--color-white)" d="M6.95 10.06 4.72 7.83l-.9.9 3.13 3.13 5.2-5.2-.9-.9-4.3 4.3Z"/>
+          </svg>
+          <span id="importAlertText"></span>
+        </div>
+        <div class="import-table-shell">
+          <div class="import-table-wrap">
+            <table class="import-table" id="importTable">
+              <colgroup>
+                <col data-col-width="220" />
+                <col data-col-width="240" />
+                <col data-col-width="120" />
+                <col data-col-width="100" />
+                <col data-col-width="240" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>账户ID</th>
+                  <th>产品ID</th>
+                  <th>优化师</th>
+                  <th>状态</th>
+                  <th class="col-error">错误信息</th>
+                </tr>
+              </thead>
+              <tbody id="importBody"></tbody>
+            </table>
+          </div>
+          <div class="import-empty" id="importEmpty">暂无数据</div>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--default" type="button" id="importCancel">取消</button>
+        <button class="btn btn--primary" type="button" id="importSave">提交</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask modal-mask--dropdown" id="editModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="editTitle">编辑账户</h2>
+        <button class="modal__close" type="button" id="editClose" aria-label="关闭">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 2l8 8M10 2L2 10"/></svg>
+        </button>
+      </div>
+      <div class="modal__body">
+        <div class="form-item">
+          <div class="form-item__label">账户名称</div>
+          <div class="form-item__control">
+            <input class="input" type="text" id="editAccountName" disabled />
+          </div>
+        </div>
+        <div class="form-item">
+          <div class="form-item__label">账户ID</div>
+          <div class="form-item__control">
+            <input class="input" type="text" id="editAccountId" disabled />
+          </div>
+        </div>
+        <div class="form-item">
+          <div class="form-item__label">平台</div>
+          <div class="form-item__control">
+            <div class="seg" id="editPlatformSeg" role="group" aria-label="平台">
+              <button type="button" class="seg__item is-active" data-value="TikTok Minis">TikTok Minis</button>
+              <button type="button" class="seg__item" data-value="Android">Android</button>
+              <button type="button" class="seg__item" data-value="iOS">iOS</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-item">
+          <div class="form-item__label">产品名称</div>
+          <div class="form-item__control" id="editProductWrap">
+            <button class="select-trigger" type="button" id="editProductTrigger">
+              <span class="select-trigger__text" id="editProductLabel"><span class="muted">请选择</span></span>
+              <svg class="select-trigger__arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+            </button>
+            <button type="button" class="select-clear" id="editProductClear" aria-label="清除" tabindex="-1">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l6 6M9 3L3 9"/></svg>
+            </button>
+            <div class="single-panel single-panel--search" id="editProductPanel">
+              <div class="single-panel__search">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+                <input type="text" id="editProductSearch" placeholder="搜索" autocomplete="off" />
+              </div>
+              <div class="single-panel__list" id="editProductList"></div>
+            </div>
+          </div>
+        </div>
+        <div class="form-item">
+          <div class="form-item__label">优化师</div>
+          <div class="form-item__control" id="editOptimizerWrap">
+            <button class="select-trigger" type="button" id="editOptimizerTrigger">
+              <span class="select-trigger__text" id="editOptimizerLabel"><span class="muted">请选择</span></span>
+              <svg class="select-trigger__arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+            </button>
+            <button type="button" class="select-clear" id="editOptimizerClear" aria-label="清除" tabindex="-1">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l6 6M9 3L3 9"/></svg>
+            </button>
+            <div class="single-panel single-panel--search" id="editOptimizerPanel">
+              <div class="single-panel__search">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+                <input type="text" id="editOptimizerSearch" placeholder="搜索" autocomplete="off" />
+              </div>
+              <div class="single-panel__list" id="editOptimizerList"></div>
+            </div>
+          </div>
+        </div>
+        <div class="form-item">
+          <div class="form-item__label">投放状态</div>
+          <div class="form-item__control">
+            <div class="seg" id="editStatusSeg" role="group" aria-label="投放状态">
+              <button type="button" class="seg__item is-active" data-value="启用">启用</button>
+              <button type="button" class="seg__item" data-value="禁用">禁用</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--default" type="button" id="editCancel">取消</button>
+        <button class="btn btn--primary" type="button" id="editSave">提交</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask modal-mask--dropdown" id="batchProductModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="batchProductTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="batchProductTitle">修改产品</h2>
+        <button class="modal__close" type="button" id="batchProductClose" aria-label="关闭">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 2l8 8M10 2L2 10"/></svg>
+        </button>
+      </div>
+      <div class="modal__body">
+        <div class="form-item">
+          <div class="form-item__label">平台</div>
+          <div class="form-item__control">
+            <div class="seg" id="batchPlatformSeg" role="group" aria-label="平台">
+              <button type="button" class="seg__item is-active" data-value="TikTok Minis">TikTok Minis</button>
+              <button type="button" class="seg__item" data-value="Android">Android</button>
+              <button type="button" class="seg__item" data-value="iOS">iOS</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-item" id="batchProductItem">
+          <div class="form-item__label">产品名称</div>
+          <div class="form-item__control" id="batchProductWrap">
+            <button class="select-trigger" type="button" id="batchProductTrigger">
+              <span class="select-trigger__text" id="batchProductLabel"><span class="muted">请选择</span></span>
+              <svg class="select-trigger__arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+            </button>
+            <button type="button" class="select-clear" id="batchProductClear" aria-label="清除" tabindex="-1">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l6 6M9 3L3 9"/></svg>
+            </button>
+            <div class="single-panel single-panel--search" id="batchProductPanel">
+              <div class="single-panel__search">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+                <input type="text" id="batchProductSearch" placeholder="搜索" autocomplete="off" />
+              </div>
+              <div class="single-panel__list" id="batchProductList"></div>
+            </div>
+            <div class="form-item__error">请选择</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--default" type="button" id="batchProductCancel">取消</button>
+        <button class="btn btn--primary" type="button" id="batchProductSave">提交</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask modal-mask--dropdown" id="batchOptimizerModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="batchOptimizerTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="batchOptimizerTitle">修改优化师</h2>
+        <button class="modal__close" type="button" id="batchOptimizerClose" aria-label="关闭">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 2l8 8M10 2L2 10"/></svg>
+        </button>
+      </div>
+      <div class="modal__body">
+        <div class="form-item" id="batchOptimizerItem">
+          <div class="form-item__label">优化师</div>
+          <div class="form-item__control" id="batchOptimizerWrap">
+            <button class="select-trigger" type="button" id="batchOptimizerTrigger">
+              <span class="select-trigger__text" id="batchOptimizerLabel"><span class="muted">请选择</span></span>
+              <svg class="select-trigger__arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+            </button>
+            <button type="button" class="select-clear" id="batchOptimizerClear" aria-label="清除" tabindex="-1">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l6 6M9 3L3 9"/></svg>
+            </button>
+            <div class="single-panel single-panel--search" id="batchOptimizerPanel">
+              <div class="single-panel__search">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+                <input type="text" id="batchOptimizerSearch" placeholder="搜索" autocomplete="off" />
+              </div>
+              <div class="single-panel__list" id="batchOptimizerList"></div>
+            </div>
+            <div class="form-item__error">请选择</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--default" type="button" id="batchOptimizerCancel">取消</button>
+        <button class="btn btn--primary" type="button" id="batchOptimizerSave">提交</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask modal-mask--dropdown" id="batchStatusModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="batchStatusTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="batchStatusTitle">修改投放状态</h2>
+        <button class="modal__close" type="button" id="batchStatusClose" aria-label="关闭">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 2l8 8M10 2L2 10"/></svg>
+        </button>
+      </div>
+      <div class="modal__body">
+        <div class="form-item">
+          <div class="form-item__label">投放状态</div>
+          <div class="form-item__control">
+            <div class="seg" id="batchStatusSeg" role="group" aria-label="投放状态">
+              <button type="button" class="seg__item is-active" data-value="启用">启用</button>
+              <button type="button" class="seg__item" data-value="禁用">禁用</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--default" type="button" id="batchStatusCancel">取消</button>
+        <button class="btn btn--primary" type="button" id="batchStatusSave">提交</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-msg" id="pageMsg" role="status" aria-live="polite"></div>
+
+  <script src="product-common.js"></script>
+  <script src="menu-data.js"></script>
+  <script src="shell.js" data-page="tiktok-account"></script>
+  <script src="col-resize.js"></script>
+  <script src="tiktok-account.js"></script>
+</body>
+</html>
