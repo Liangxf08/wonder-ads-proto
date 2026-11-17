@@ -670,20 +670,24 @@
     return String(h || '').replace(/^\uFEFF/, '').trim().toLowerCase().replace(/\s+/g, '');
   }
 
-  function validateImportRow(row, seen) {
+  var CLICK_LINK_RE = /^https:\/\/www\.tiktok\.com\/minis\/[A-Za-z0-9]+$/;
+
+  function isClickLink(value) {
+    return CLICK_LINK_RE.test(String(value || '').trim());
+  }
+
+  function validateImportRow(row) {
     var errors = [];
     if (!row.clientKey) errors.push('Client key 不能为空');
-    else if (seen[row.clientKey]) errors.push('Client key 重复');
     else if (!findByClientKey(row.clientKey)) errors.push('Client key 无法匹配');
-    if (row.clientKey) seen[row.clientKey] = true;
     if (!row.clickLink) errors.push('点击链接不能为空');
+    else if (!isClickLink(row.clickLink)) errors.push('点击链接格式错误');
     return errors.join('；');
   }
 
   function buildImportRows(headers, dataLines, splitLine) {
     var keyIndex = -1;
     var linkIndex = -1;
-    var seen = {};
     var list = [];
     headers.forEach(function (h, i) {
       var key = normalizeHeader(h);
@@ -698,7 +702,7 @@
         clickLink: String(cols[linkIndex] == null ? '' : cols[linkIndex]).trim(),
         error: ''
       };
-      row.error = validateImportRow(row, seen);
+      row.error = validateImportRow(row);
       list.push(row);
     });
     if (!list.length) return { error: '未解析到有效数据行，请检查文件内容' };
