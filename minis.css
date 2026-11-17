@@ -142,6 +142,25 @@ a.col-link__text {
   border-radius: 4px;
 }
 
+#importModal .import-table {
+  width: 100%;
+  min-width: 100%;
+  table-layout: fixed;
+}
+#importModal .import-table col.col-import-key {
+  width: 200px !important;
+  min-width: 200px !important;
+  max-width: 200px !important;
+}
+#importModal .import-table col.col-import-flex {
+  width: calc((100% - 200px) / 2) !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+#importModal .import-table .col-error {
+  width: auto;
+  max-width: none;
+}
 #importModal .import-table th.col-error {
   color: var(--color-text-2);
 }
