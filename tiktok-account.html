@@ -559,13 +559,6 @@
           <button class="link" type="button" id="downloadTemplateBtn">下载模板</button>
           <input type="file" id="importFile" accept=".csv,.xls,text/csv,application/vnd.ms-excel" hidden />
         </div>
-        <div class="auth-pick-tip" id="importTip" role="note">
-          <svg class="auth-pick-tip__icon" viewBox="0 0 16 16" aria-hidden="true">
-            <circle cx="8" cy="8" r="6.667" fill="currentColor"/>
-            <path fill="var(--color-white)" d="M7.25 4.35a.75.75 0 1 1 1.5 0 .75.75 0 0 1-1.5 0ZM7.3 6.5h1.4v5.15H7.3V6.5Z"/>
-          </svg>
-          <span>产品ID：Android、iOS 产品填写包名，TikTok Minis 填写 Client key</span>
-        </div>
         <div class="import-alert" id="importAlert" role="alert">
           <svg class="import-alert__icon import-alert__icon--error" viewBox="0 0 16 16" aria-hidden="true">
             <circle cx="8" cy="8" r="6.667" fill="currentColor"/>
@@ -581,16 +574,18 @@
           <div class="import-table-wrap">
             <table class="import-table" id="importTable">
               <colgroup>
-                <col data-col-width="220" />
-                <col data-col-width="240" />
+                <col data-col-width="200" />
                 <col data-col-width="120" />
+                <col data-col-width="200" />
                 <col data-col-width="100" />
-                <col data-col-width="240" />
+                <col data-col-width="100" />
+                <col class="col-fill" />
               </colgroup>
               <thead>
                 <tr>
                   <th>账户ID</th>
-                  <th>产品ID</th>
+                  <th>平台</th>
+                  <th>Client key</th>
                   <th>优化师</th>
                   <th>状态</th>
                   <th class="col-error">错误信息</th>
@@ -635,8 +630,6 @@
           <div class="form-item__control">
             <div class="seg" id="editPlatformSeg" role="group" aria-label="平台">
               <button type="button" class="seg__item is-active" data-value="TikTok Minis">TikTok Minis</button>
-              <button type="button" class="seg__item" data-value="Android">Android</button>
-              <button type="button" class="seg__item" data-value="iOS">iOS</button>
             </div>
           </div>
         </div>
@@ -709,8 +702,6 @@
           <div class="form-item__control">
             <div class="seg" id="batchPlatformSeg" role="group" aria-label="平台">
               <button type="button" class="seg__item is-active" data-value="TikTok Minis">TikTok Minis</button>
-              <button type="button" class="seg__item" data-value="Android">Android</button>
-              <button type="button" class="seg__item" data-value="iOS">iOS</button>
             </div>
           </div>
         </div>

@@ -8,35 +8,13 @@
   var $ = UI.$;
   var escapeHtml = UI.escapeHtml;
 
-  var PRODUCT_TYPES = ['Android', 'iOS', 'TikTok Minis'];
-  var TYPE_ABBR = { Android: 'AND', iOS: 'IOS', 'TikTok Minis': 'TM' };
+  var PRODUCT_TYPES = ['TikTok Minis'];
+  var TYPE_ABBR = { 'TikTok Minis': 'TM' };
   var ICON_BASE = /\/share-site\//.test(location.pathname) ? '../素材/平台图标/' : '素材/平台图标/';
   var PLATFORM_ICONS = {
-    Android: ICON_BASE + 'Android.png',
-    iOS: ICON_BASE + 'iOS.png',
     'TikTok Minis': ICON_BASE + 'TikTok.png'
   };
   var PRODUCTS = [
-    { key: 'ios-gems', type: 'iOS', name: 'Gems Match: Color Puzzle (钻石拼图)', abbr: 'GMCP' },
-    { key: 'ios-ttpcw', type: 'iOS', name: '天天拼詞王', abbr: 'TTPCW' },
-    { key: 'ios-screw-away', type: 'iOS', name: 'Screw Away: 3D Pin Puzzle', abbr: 'SA3DPP' },
-    { key: 'and-cat', type: 'Android', name: 'Cat Defenders: Shelling Snake (吃不到我)', abbr: 'CDSS' },
-    { key: 'ios-screw-pin', type: 'iOS', name: 'Screw Pin Jam Puzzle (拦不住我)', abbr: 'SPJP' },
-    { key: 'and-dragon', type: 'Android', name: 'Dragon Fever TD! (恶龙守不住)', abbr: 'DFTD' },
-    { key: 'and-girl', type: 'Android', name: 'Girl Rescue: Dragon Out! (营救女孩)', abbr: 'GRDO' },
-    { key: 'ios-dragon', type: 'iOS', name: 'Dragon Fever TD! (恶龙守不住)', abbr: 'DFTD' },
-    { key: 'and-screw-pin', type: 'Android', name: 'Screw Pin Jam Puzzle (拦不住我)', abbr: 'SPJP' },
-    { key: 'ios-girl', type: 'iOS', name: 'Girl Rescue: Dragon Out! (营救女孩)', abbr: 'GRDO' },
-    { key: 'ios-haggle', type: 'iOS', name: 'Haggle Sleuth: Spot Anomaly! (砍價大偵探)', abbr: 'HSSA' },
-    { key: 'and-moji', type: 'Android', name: '文字の中に文字!', abbr: 'WZZWZ' },
-    { key: 'and-screw-away', type: 'Android', name: 'Screw Away: 3D Pin Puzzle', abbr: 'SA3DPP' },
-    { key: 'and-ttpcw', type: 'Android', name: '天天拼詞王', abbr: 'TTPCW' },
-    { key: 'and-cube', type: 'Android', name: 'Cube Out 3D :Jam Puzzle', abbr: 'CO3DJP' },
-    { key: 'ios-fashion', type: 'iOS', name: 'Fashion Makeover Puzzle (超玩美派对)', abbr: 'FMP' },
-    { key: 'ios-cube', type: 'iOS', name: 'Cube Out 3D :Jam Puzzle', abbr: 'CO3DJP' },
-    { key: 'ios-naodong', type: 'iOS', name: '腦洞諧音梗', abbr: 'NDXYG' },
-    { key: 'and-haggle', type: 'Android', name: 'Haggle Sleuth: Spot Anomaly! (砍價大偵探)', abbr: 'HSSA' },
-    { key: 'and-brain', type: 'Android', name: 'Brain Puzzle King (燒腦眼神王)', abbr: 'BPK' },
     { key: 'tm-iq', type: 'TikTok Minis', name: 'IQ Seek', abbr: 'IQS' },
     { key: 'tm-life-builder', type: 'TikTok Minis', name: 'Life Builder', abbr: 'LB' },
     { key: 'tm-master', type: 'TikTok Minis', name: 'Master Your Life', abbr: 'MYL' },
@@ -49,26 +27,18 @@
     { key: 'tm-creator', type: 'TikTok Minis', name: 'Life Creator', abbr: 'LC' }
   ];
   var PRODUCT_IDS = {
-    'ios-gems': 'com.cozy.pack.ios',
-    'ios-ttpcw': 'com.daily.word.king.ios',
-    'ios-screw-away': 'com.screw.away.pin.puzzle.ios',
-    'ios-screw-pin': 'com.screw.pin.jam.puzzle.ios',
-    'ios-dragon': 'com.dragon.fever.td.ios',
-    'ios-girl': 'com.girl.rescue.dragon.ios',
-    'ios-haggle': 'com.haggle.sleuth.spot.ios',
-    'ios-fashion': 'com.fashion.makeover.puzzle.ios',
-    'ios-cube': 'com.cube.out.jam.puzzle.ios',
-    'ios-naodong': 'com.brain.pun.riddle.ios',
-    'and-cat': 'com.bus.hoop.color.grid.jam.an',
-    'and-dragon': 'com.dragon.fever.td.an',
-    'and-girl': 'com.girl.rescue.dragon.an',
-    'and-screw-pin': 'com.screw.pin.jam.puzzle.an',
-    'and-moji': 'com.moji.word.in.word.an',
-    'and-screw-away': 'com.screw.away.pin.puzzle.an',
-    'and-ttpcw': 'com.daily.word.king.an',
-    'and-cube': 'com.cube.out.jam.puzzle.an',
-    'and-haggle': 'com.haggle.sleuth.spot.an',
-    'and-brain': 'com.brain.puzzle.king.an',
+    'tm-iq': '44761011',
+    'tm-life-builder': '44761012',
+    'tm-master': '44761013',
+    'tm-relax': '44761014',
+    'tm-dream': '44761015',
+    'tm-easy': '44761016',
+    'tm-parking': '44761017',
+    'tm-car': '44761018',
+    'tm-ink': '44761019',
+    'tm-creator': '44761020'
+  };
+  var CLIENT_KEYS = {
     'tm-iq': 'mg5mtz1tcejwhf0x',
     'tm-life-builder': 'k8n2qwp4rvdhx7sa',
     'tm-master': 'b3c9lm6tujy0e1fo',
@@ -80,7 +50,10 @@
     'tm-ink': 'j2l5mb8eq1p4s7hy',
     'tm-creator': 'n6c0dk3fw9a2u5ti'
   };
-  PRODUCTS.forEach(function (item) { item.productId = PRODUCT_IDS[item.key] || ''; });
+  PRODUCTS.forEach(function (item) {
+    item.productId = PRODUCT_IDS[item.key] || '';
+    item.clientKey = CLIENT_KEYS[item.key] || '';
+  });
 
   var OPTIMIZERS = Array.from({ length: 12 }, function (_, i) {
     return '用户' + String.fromCharCode(65 + i);
@@ -155,7 +128,8 @@
     colDef('advertiser_id', '账户ID', 'text', 200, true, true, true),
     colDef('product_type', '平台', 'text', 120, true, false, false),
     colDef('product_name', '产品名称', 'text', 200, true, false, false),
-    colDef('product_id', '产品ID', 'text', 200, false, false, true),
+    colDef('product_id', '产品ID', 'text', 140, false, false, true),
+    colDef('client_key', 'Client key', 'text', 180, false, false, true),
     colDef('optimizer_name', '优化师', 'text', 100, true, false, false),
     colDef('balance', '账户余额', 'money', 120, true, false, false),
     colDef('company', '账户主体', 'text', 160, false, false, false),
@@ -201,15 +175,11 @@
     return null;
   }
 
-  function productIdOf(product) {
-    return product && product.productId ? product.productId : '';
-  }
-
-  function productByProductId(id) {
+  function productByClientKey(id) {
     var key = String(id || '').trim().toLowerCase();
     if (!key) return null;
     for (var i = 0; i < PRODUCTS.length; i += 1) {
-      if (productIdOf(PRODUCTS[i]).toLowerCase() === key) return PRODUCTS[i];
+      if (String(PRODUCTS[i].clientKey || '').toLowerCase() === key) return PRODUCTS[i];
     }
     return null;
   }
@@ -226,24 +196,7 @@
   }
 
   function sampleProducts() {
-    var buckets = { Android: [], iOS: [], 'TikTok Minis': [] };
-    PRODUCTS.forEach(function (item) {
-      if (buckets[item.type]) buckets[item.type].push(item);
-    });
-    var order = ['Android', 'iOS', 'TikTok Minis'];
-    var list = [];
-    var count = 0;
-    var i;
-    var t;
-    order.forEach(function (type) {
-      if (buckets[type].length > count) count = buckets[type].length;
-    });
-    for (i = 0; i < count; i += 1) {
-      for (t = 0; t < order.length; t += 1) {
-        if (buckets[order[t]][i]) list.push(buckets[order[t]][i]);
-      }
-    }
-    return list;
+    return PRODUCTS.slice();
   }
 
   function buildRows() {
@@ -264,6 +217,7 @@
         product_key: product.key,
         product_name: product.name,
         product_id: product.productId,
+        client_key: product.clientKey,
         optimizer_name: optimizer,
         balance: Math.round(((i * 137.26) + (i % 4 === 0 ? 0 : 18.5)) * 100) / 100,
         auth_user: LINKED_AUTH_NAMES[i % LINKED_AUTH_NAMES.length],
@@ -659,6 +613,7 @@
           product_key: '',
           product_name: '',
           product_id: '',
+          client_key: '',
           optimizer_name: '用户A',
           balance: 0,
           auth_user: '',
@@ -1951,13 +1906,60 @@
     return null;
   }
 
+  function layoutImportColumns(table) {
+    if (!table) return;
+    var cols = table.querySelectorAll('colgroup col');
+    if (cols.length < 2) return;
+    var available = table.parentElement ? table.parentElement.clientWidth : 0;
+    var used = 0;
+    var i;
+    var width;
+    for (i = 0; i < cols.length - 1; i += 1) {
+      width = parseFloat(cols[i].getAttribute('data-col-width')) || 0;
+      used += width;
+      cols[i].style.width = width + 'px';
+      cols[i].style.minWidth = width + 'px';
+      cols[i].style.maxWidth = width + 'px';
+    }
+    var rest = available > used ? Math.max(160, available - used) : 160;
+    var last = cols[cols.length - 1];
+    last.setAttribute('data-col-width', String(rest));
+    last.style.width = rest + 'px';
+    last.style.minWidth = rest + 'px';
+    last.style.maxWidth = '';
+    if (available > 0 && used + rest <= available + 1) {
+      table.style.width = '100%';
+      table.style.minWidth = '100%';
+    } else {
+      table.style.width = (used + rest) + 'px';
+      table.style.minWidth = (used + rest) + 'px';
+    }
+  }
+
+  function refreshImportTable() {
+    var table = $('importTable');
+    if (!window.ColResize || !table) return;
+    ColResize.refresh(table, { onLayout: layoutImportColumns });
+    /* 弹窗打开后会再初始化一次列宽，并清掉上面的回调，需在那之后重新锁列 */
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        var current = $('importTable');
+        if (!current) return;
+        var opts = current._colResizeOpts || {};
+        opts.onLayout = layoutImportColumns;
+        current._colResizeOpts = opts;
+        layoutImportColumns(current);
+      });
+    });
+  }
+
   function openImportModal() {
     importRows = [];
     showImportTip();
     renderImportTable();
     $('importFile').value = '';
     UI.openModal('importModal');
-    if (window.ColResize) ColResize.refresh($('importTable'));
+    refreshImportTable();
   }
 
   function closeImportModal() {
@@ -1965,13 +1967,11 @@
   }
 
   function showImportTip() {
-    $('importTip').hidden = false;
     $('importAlert').classList.remove('is-show', 'is-success');
     $('importAlertText').textContent = '';
   }
 
   function showImportAlert(text, type) {
-    $('importTip').hidden = true;
     $('importAlertText').textContent = text;
     $('importAlert').classList.add('is-show');
     $('importAlert').classList.toggle('is-success', type === 'success');
@@ -1989,18 +1989,20 @@
     body.innerHTML = importRows.map(function (row) {
       return '<tr>' +
         '<td title="' + escapeHtml(row.accountId) + '">' + escapeHtml(row.accountId || '-') + '</td>' +
-        '<td title="' + escapeHtml(row.productId) + '">' + escapeHtml(row.productId || '-') + '</td>' +
+        '<td title="' + escapeHtml(row.platform) + '">' + escapeHtml(row.platform || '-') + '</td>' +
+        '<td title="' + escapeHtml(row.clientKey) + '">' + escapeHtml(row.clientKey || '-') + '</td>' +
         '<td>' + escapeHtml(row.optimizer || '-') + '</td>' +
         '<td>' + escapeHtml(row.status || '-') + '</td>' +
         '<td class="col-error">' + escapeHtml(row.error || '') + '</td>' +
       '</tr>';
     }).join('');
-    if (window.ColResize) ColResize.refresh($('importTable'));
+    refreshImportTable();
   }
 
   function downloadTemplate() {
     var sampleId = ALL_ROWS[0] ? ALL_ROWS[0].advertiser_id : '7341008810000001';
-    var sampleProduct = productIdOf(PRODUCTS[0]);
+    var samplePlatform = (ALL_ROWS[0] && ALL_ROWS[0].product_type) || PRODUCT_TYPES[0];
+    var sampleClientKey = PRODUCTS[0] ? PRODUCTS[0].clientKey : '';
     var sampleOptimizer = '用户A';
     var sampleStatus = '启用';
     var colW = '210';
@@ -2011,6 +2013,7 @@
         '<Row>' +
         '<Cell ss:StyleID="sText"><Data ss:Type="String"></Data></Cell>' +
         '<Cell ss:StyleID="sCell"><Data ss:Type="String"></Data></Cell>' +
+        '<Cell ss:StyleID="sText"><Data ss:Type="String"></Data></Cell>' +
         '<Cell ss:StyleID="sCell"><Data ss:Type="String"></Data></Cell>' +
         '<Cell ss:StyleID="sCell"><Data ss:Type="String"></Data></Cell>' +
         '</Row>';
@@ -2049,18 +2052,21 @@
       '<Worksheet ss:Name="导入模板">' +
       '<Table ss:DefaultRowHeight="18">' +
       '<Column ss:StyleID="sText" ss:AutoFitWidth="0" ss:Width="' + colW + '"/>' +
-      '<Column ss:StyleID="sCell" ss:AutoFitWidth="0" ss:Width="' + colW + '"/>' +
+      '<Column ss:StyleID="sCell" ss:AutoFitWidth="0" ss:Width="120"/>' +
+      '<Column ss:StyleID="sText" ss:AutoFitWidth="0" ss:Width="' + colW + '"/>' +
       '<Column ss:StyleID="sCell" ss:AutoFitWidth="0" ss:Width="' + colW + '"/>' +
       '<Column ss:StyleID="sCell" ss:AutoFitWidth="0" ss:Width="80"/>' +
       '<Row>' +
       '<Cell ss:StyleID="sText"><Data ss:Type="String">账户ID</Data></Cell>' +
-      '<Cell ss:StyleID="sCell"><Data ss:Type="String">产品ID</Data></Cell>' +
+      '<Cell ss:StyleID="sCell"><Data ss:Type="String">平台</Data></Cell>' +
+      '<Cell ss:StyleID="sText"><Data ss:Type="String">Client key</Data></Cell>' +
       '<Cell ss:StyleID="sCell"><Data ss:Type="String">优化师</Data></Cell>' +
       '<Cell ss:StyleID="sCell"><Data ss:Type="String">状态</Data></Cell>' +
       '</Row>' +
       '<Row>' +
       '<Cell ss:StyleID="sText"><Data ss:Type="String">' + sampleId + '</Data></Cell>' +
-      '<Cell ss:StyleID="sCell"><Data ss:Type="String">' + sampleProduct + '</Data></Cell>' +
+      '<Cell ss:StyleID="sCell"><Data ss:Type="String">' + samplePlatform + '</Data></Cell>' +
+      '<Cell ss:StyleID="sText"><Data ss:Type="String">' + sampleClientKey + '</Data></Cell>' +
       '<Cell ss:StyleID="sCell"><Data ss:Type="String">' + sampleOptimizer + '</Data></Cell>' +
       '<Cell ss:StyleID="sCell"><Data ss:Type="String">' + sampleStatus + '</Data></Cell>' +
       '</Row>' +
@@ -2131,11 +2137,12 @@
   }
 
   function mapHeaderIndex(headers) {
-    var map = { accountId: -1, productId: -1, optimizer: -1, status: -1 };
+    var map = { accountId: -1, platform: -1, clientKey: -1, optimizer: -1, status: -1 };
     headers.forEach(function (h, i) {
       var key = normalizeHeader(h);
       if (key === '账户id' || key === 'accountid' || key === 'account_id') map.accountId = i;
-      else if (key === '产品id' || key === 'productid' || key === 'product_id') map.productId = i;
+      else if (key === '平台' || key === 'platform') map.platform = i;
+      else if (key === 'clientkey' || key === 'client_key') map.clientKey = i;
       else if (key === '优化师' || key === 'optimizer') map.optimizer = i;
       else if (key === '状态' || key === '投放状态' || key === 'status') map.status = i;
     });
@@ -2147,13 +2154,14 @@
     if (!row.accountId) {
       errors.push('必填项不能为空');
     } else if (/e[+-]/i.test(row.accountId) || !/^\d{5,}$/.test(row.accountId) || idSet[row.accountId] || !findAccountById(row.accountId)) {
-      errors.push('账户ID无法匹配');
+      errors.push('账户ID 无法匹配');
     }
     if (row.accountId) idSet[row.accountId] = true;
-    if (row.productId && !productByProductId(row.productId)) errors.push('产品ID无法匹配');
+    if (row.platform && PRODUCT_TYPES.indexOf(row.platform) < 0) errors.push('平台无法匹配');
+    if (row.clientKey && !productByClientKey(row.clientKey)) errors.push('Client key 无法匹配');
     if (row.optimizer && OPTIMIZERS.indexOf(row.optimizer) < 0) errors.push('优化师无法匹配');
     if (row.status && row.status !== '启用' && row.status !== '禁用') errors.push('状态无法匹配');
-    if (row.accountId && !row.productId && !row.optimizer && !row.status) errors.push('必填项不能为空');
+    if (row.accountId && !row.platform && !row.clientKey && !row.optimizer && !row.status) errors.push('必填项不能为空');
     return errors.join('；');
   }
 
@@ -2164,14 +2172,15 @@
     var i;
     var cols;
     var row;
-    if (col.accountId < 0 || col.productId < 0 || col.optimizer < 0 || col.status < 0) {
-      return { error: '表头不正确，需包含：账户ID、产品ID、优化师、状态' };
+    if (col.accountId < 0 || col.platform < 0 || col.clientKey < 0 || col.optimizer < 0 || col.status < 0) {
+      return { error: '表头不正确，需包含：账户ID、平台、Client key、优化师、状态' };
     }
     for (i = 0; i < dataLines.length; i += 1) {
       cols = splitLine(dataLines[i]);
       row = {
         accountId: normalizeAccountId(cols[col.accountId]),
-        productId: String(cols[col.productId] == null ? '' : cols[col.productId]).trim(),
+        platform: String(cols[col.platform] == null ? '' : cols[col.platform]).trim(),
+        clientKey: normalizeAccountId(cols[col.clientKey]),
         optimizer: String(cols[col.optimizer] == null ? '' : cols[col.optimizer]).trim(),
         status: String(cols[col.status] == null ? '' : cols[col.status]).trim(),
         error: ''
@@ -2324,13 +2333,18 @@
       var product;
       var optimizer;
       if (!existing) return;
-      product = row.productId ? productByProductId(row.productId) : productByKey(existing.product_key);
+      product = row.clientKey ? productByClientKey(row.clientKey) : productByKey(existing.product_key);
       optimizer = row.optimizer || existing.optimizer_name;
-      if (row.productId && product) {
+      if (row.clientKey && product) {
         existing.product_type = product.type;
         existing.product_key = product.key;
         existing.product_name = product.name;
         existing.product_id = product.productId;
+        existing.client_key = product.clientKey || '';
+      }
+      if (row.platform) {
+        existing.product_type = row.platform;
+        if (product && product.type !== row.platform) product = null;
       }
       if (row.optimizer) existing.optimizer_name = row.optimizer;
       if (row.status === '启用' || row.status === '禁用') existing.status = row.status;
@@ -2542,11 +2556,13 @@
       row.product_key = product.key;
       row.product_name = product.name;
       row.product_id = product.productId;
+      row.client_key = product.clientKey || '';
       row.advertiser_name = accountName(product, optimizer || row.optimizer_name || '用户A');
     } else {
       row.product_key = '';
       row.product_name = '';
       row.product_id = '';
+      row.client_key = '';
     }
     row.updated_at = formatDateTime(new Date());
     closeEditModal();
@@ -2646,6 +2662,7 @@
       row.product_key = product.key;
       row.product_name = product.name;
       row.product_id = product.productId;
+      row.client_key = product.clientKey || '';
       row.advertiser_name = accountName(product, row.optimizer_name || '用户A');
       row.updated_at = formatDateTime(new Date());
     });

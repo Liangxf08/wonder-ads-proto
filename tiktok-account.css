@@ -747,7 +747,6 @@
   pointer-events: none;
 }
 
-#importModal .auth-pick-tip,
 #importModal .import-alert {
   align-items: center;
   gap: var(--size-2);
@@ -759,20 +758,11 @@
   line-height: 22px;
 }
 
-#importModal .auth-pick-tip {
-  background: var(--color-primary-1);
-}
-
-#importModal .auth-pick-tip__icon,
 #importModal .import-alert__icon {
   width: 16px;
   height: 16px;
   margin-top: 0;
   flex-shrink: 0;
-}
-
-#importModal .auth-pick-tip__icon {
-  color: var(--color-primary-6);
 }
 
 #importModal .import-alert {
@@ -802,12 +792,16 @@
   display: block;
 }
 
+#importModal .import-table th.col-error,
+#importModal .import-table td.col-error {
+  width: auto;
+}
+
 #importModal .import-table th.col-error {
   color: var(--color-text-2);
 }
 
 #importModal .import-table td.col-error {
-  width: auto;
   color: var(--color-text-1);
 }
 
