@@ -1,0 +1,55 @@
+/* 投放系统 · 资产 / TikTok / Mini 列表 */
+
+[hidden] { display: none !important; }
+
+.filter-bar,
+.data-panel { position: relative; }
+.filter-bar { z-index: 2; }
+.data-panel { z-index: 1; }
+.filter-item:has(.is-open) { z-index: 3; }
+
+.mini-name {
+  display: flex;
+  align-items: center;
+  gap: var(--size-2);
+  min-width: 0;
+  max-width: 100%;
+}
+
+.mini-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--border-radius-medium);
+  background: var(--color-fill-4);
+  object-fit: cover;
+}
+
+.mini-name__text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cell-id--trail {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  gap: var(--size-2);
+}
+
+.cell-id--trail .cell-id__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.cell-id--trail .copy-btn { margin-left: auto; }
+
+.cell-ellipsis {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

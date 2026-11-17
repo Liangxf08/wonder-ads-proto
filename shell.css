@@ -175,3 +175,6 @@ img.menu-icon {
   align-items: center;
   justify-content: center;
 }
+
+/* 排序只点亮箭头，表头文字保持原色 */
+.th-sort.is-active { color: inherit; }
