@@ -56,7 +56,31 @@
 
   var pageKey = null;
   var keepCollapsed = false;
-  var savedGroupCollapsed = null;
+  var GROUP_STATE_KEY = 'delivery-sidebar-groups';
+  var sidebarMemoryBound = false;
+
+  function readStoredGroups() {
+    try {
+      var raw = sessionStorage.getItem(GROUP_STATE_KEY);
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') return parsed;
+    } catch (err) {}
+    return null;
+  }
+
+  function persistGroupState(partial) {
+    var stored = readStoredGroups() || {};
+    Object.keys(partial || {}).forEach(function (id) {
+      stored[id] = !!partial[id];
+    });
+    savedGroupCollapsed = stored;
+    try {
+      sessionStorage.setItem(GROUP_STATE_KEY, JSON.stringify(stored));
+    } catch (err) {}
+  }
+
+  var savedGroupCollapsed = readStoredGroups();
 
   function rows() {
     return (global.DeliveryMenu && global.DeliveryMenu.rows) || [];
@@ -279,12 +303,13 @@
   }
 
   function renderGroup(group, activeId) {
+    var key = String(group.id);
     var collapsed;
-    if (savedGroupCollapsed && Object.prototype.hasOwnProperty.call(savedGroupCollapsed, String(group.id))) {
-      collapsed = savedGroupCollapsed[String(group.id)];
-    } else {
-      collapsed = !containsPage(group.id, activeId);
-    }
+    if (containsPage(group.id, activeId)) collapsed = false;
+    else if (savedGroupCollapsed && Object.prototype.hasOwnProperty.call(savedGroupCollapsed, key)) {
+      collapsed = !!savedGroupCollapsed[key];
+    } else collapsed = true;
+    shownGroupCollapsed[key] = collapsed;
     var kids = childrenOf(group.id).filter(isSidebarNode).map(function (item) {
       if (item.type === 'dir') return '<li>' + renderGroup(item, activeId) + '</li>';
       return '<li>' + renderLeaf(item, activeId, false) + '</li>';
@@ -301,8 +326,11 @@
     );
   }
 
+  var shownGroupCollapsed = {};
+
   function renderSidebar(page) {
     if (!page.nav) return '';
+    shownGroupCollapsed = {};
     var activeId = page.row ? page.row.id : '';
     var items = childrenOf(page.nav.id).filter(isSidebarNode);
     if (!items.length) return '';
@@ -310,6 +338,7 @@
       if (item.type === 'dir') return renderGroup(item, activeId);
       return renderLeaf(item, activeId, true);
     }).join('');
+    if (Object.keys(shownGroupCollapsed).length) persistGroupState(shownGroupCollapsed);
     var collapsed = keepCollapsed ? ' is-collapsed' : '';
     var toggleTitle = keepCollapsed ? '展开菜单' : '折叠菜单';
     var toggleLabel = keepCollapsed ? '展开侧边栏' : '折叠侧边栏';
@@ -330,10 +359,28 @@
     keepCollapsed = !!(sidebar && sidebar.classList.contains('is-collapsed'));
     var groups = document.querySelectorAll('#sidebar [data-group]');
     if (!groups.length) return;
-    savedGroupCollapsed = {};
+    var partial = {};
     groups.forEach(function (group) {
       var id = group.getAttribute('data-id');
-      if (id) savedGroupCollapsed[id] = group.classList.contains('is-collapsed');
+      if (id) partial[id] = group.classList.contains('is-collapsed');
+    });
+    persistGroupState(partial);
+  }
+
+  function bindSidebarMemory() {
+    if (sidebarMemoryBound) return;
+    sidebarMemoryBound = true;
+    document.addEventListener('click', function (event) {
+      if (!event.target.closest('#sidebar [data-group-toggle]')) return;
+      setTimeout(function () {
+        var groups = document.querySelectorAll('#sidebar [data-group]');
+        var partial = {};
+        groups.forEach(function (group) {
+          var id = group.getAttribute('data-id');
+          if (id) partial[id] = group.classList.contains('is-collapsed');
+        });
+        persistGroupState(partial);
+      }, 0);
     });
   }
 
@@ -376,6 +423,7 @@
 
   function afterMount() {
     bindHeader();
+    bindSidebarMemory();
     if (global.ProductUI && global.ProductUI.bindSidebar && document.getElementById('sidebar')) {
       global.ProductUI.bindSidebar();
     }
