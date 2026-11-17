@@ -101,10 +101,6 @@
     item(23, '素材库', 'page', 22, '素材', 'material-library', 'MaterialLibrary'),
     item(26, '文案库', 'dir', 22, '素材', 'copy-library', 'CopyLibrary'),
     item(50, 'TikTok', 'page', 26, '文案库', 'tiktok-copy', 'TiktokCopy'),
-    item(27, '工具', 'nav', '', '-', 'tool', 'Tool'),
-    item(28, '素材采集', 'page', 27, '工具', 'material-collect', 'MaterialCollect'),
-    item(29, '素材衍生', 'page', 27, '工具', 'material-derive', 'MaterialDerive'),
-    item(30, '智能托管', 'page', 27, '工具', 'smart-hosting', 'SmartHosting'),
     item(31, '资产', 'nav', '', '-', 'asset', 'Asset'),
     item(32, 'TikTok', 'dir', 31, '资产', 'tiktok-asset', 'TiktokAsset'),
     item(34, 'Mini 列表', 'page', 32, 'TikTok', 'tiktok-minis', 'TiktokMinis'),
@@ -115,6 +111,10 @@
     item(46, 'Meta', 'page', 42, '推广', 'meta-promotion', 'MetaPromotion'),
     item(47, 'Google', 'page', 42, '推广', 'google-promotion', 'GooglePromotion'),
     item(48, 'Mintegral', 'page', 42, '推广', 'mintegral-promotion', 'MintegralPromotion'),
+    item(27, '工具', 'nav', '', '-', 'tool', 'Tool'),
+    item(28, '素材采集', 'page', 27, '工具', 'material-collect', 'MaterialCollect'),
+    item(29, '素材衍生', 'page', 27, '工具', 'material-derive', 'MaterialDerive'),
+    item(30, '智能托管', 'page', 27, '工具', 'smart-hosting', 'SmartHosting'),
     item(49, '看板', 'nav', '', '-', 'dashboard', 'Dashboard')
   ];
 
