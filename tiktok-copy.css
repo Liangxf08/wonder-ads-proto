@@ -1,0 +1,292 @@
+/* 投放系统 · 素材 / 文案库 / TikTok */
+
+[hidden] { display: none !important; }
+
+.page-tabs__item {
+  color: var(--color-text-1);
+}
+
+.filter-panel,
+.data-panel { position: relative; }
+.filter-panel { z-index: 2; }
+.data-panel { z-index: 1; }
+.filter-item:has(.is-open) { z-index: 3; }
+
+.form-item__label-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.data-table th.is-num,
+.data-table td.is-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.link--danger { color: var(--color-danger-6); }
+.link--danger:hover { color: var(--color-danger-5); opacity: 1; }
+
+.line-editor {
+  min-height: 170px;
+  padding: 4px 8px 4px 0;
+  border: 1px solid var(--color-border-2);
+  border-radius: var(--border-radius-medium);
+  background: var(--color-white);
+}
+
+.line-editor:hover {
+  border-color: var(--color-primary);
+}
+
+.form-item.is-error .line-editor,
+.form-item.is-error .line-editor:hover {
+  border-color: var(--color-danger-6);
+}
+
+.line-editor__row {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+}
+
+.line-editor__no {
+  flex: 0 0 28px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 32px;
+  color: var(--color-text-3);
+}
+
+.line-editor__field {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-medium);
+}
+
+.line-editor__row:focus-within .line-editor__field {
+  border-color: var(--color-primary);
+  box-shadow: var(--form-focus-shadow);
+}
+
+.line-editor__row.is-over .line-editor__field {
+  border-color: var(--color-danger-6);
+}
+
+.line-editor__input {
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 30px;
+  color: var(--color-text-1);
+}
+
+.line-editor__input::placeholder {
+  color: var(--color-text-4);
+}
+
+.line-editor__row.is-over .line-editor__input {
+  color: var(--color-danger-6);
+}
+
+.line-editor__clear {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-3);
+  cursor: pointer;
+}
+
+.line-editor__clear svg {
+  width: 12px;
+  height: 12px;
+}
+
+.line-editor__clear:hover {
+  color: var(--color-text-2);
+}
+
+.pack-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.pack-name__text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pack-expand {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-3);
+  cursor: pointer;
+}
+
+.pack-expand svg {
+  width: 12px;
+  height: 12px;
+  transition: transform 0.2s;
+}
+
+.pack-expand.is-open svg {
+  transform: rotate(90deg);
+}
+
+.pack-expand:hover:not(:disabled) {
+  color: var(--color-primary);
+}
+
+.pack-expand:disabled {
+  color: var(--color-text-4);
+  cursor: not-allowed;
+}
+
+.pack-detail td {
+  height: auto;
+  white-space: normal;
+  overflow: visible;
+  vertical-align: top;
+  padding: 8px 12px 8px 36px;
+  background: var(--color-fill-1);
+}
+
+.data-table tbody tr.pack-detail:hover td {
+  background: var(--color-fill-1);
+}
+
+.pack-lines__item {
+  padding: 4px 0;
+  line-height: 22px;
+  color: var(--color-text-1);
+  word-break: break-all;
+}
+
+.copy-edit__input {
+  min-height: 96px;
+  padding-bottom: 28px;
+  resize: none;
+}
+
+.copy-box {
+  position: relative;
+}
+
+.copy-box__input {
+  min-height: 96px;
+  padding-bottom: 28px;
+  resize: none;
+}
+
+.copy-box__count {
+  position: absolute;
+  right: 12px;
+  bottom: 8px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-text-3);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.copy-box.is-over .copy-box__count {
+  color: var(--color-danger-6);
+}
+
+.copy-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.copy-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 32px;
+  column-gap: 8px;
+  align-items: start;
+}
+
+.copy-row__remove {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-3);
+  border-radius: var(--border-radius-medium);
+}
+
+.copy-row__remove svg {
+  width: 16px;
+  height: 16px;
+}
+
+.copy-row__remove:hover:not(:disabled) {
+  color: var(--color-danger-6);
+  background: var(--color-danger-1);
+}
+
+.copy-row__remove:disabled {
+  color: var(--color-text-4);
+  cursor: not-allowed;
+}
+
+.copy-row__error {
+  display: none;
+  grid-column: 1;
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-danger-6);
+}
+
+.copy-row.is-error .copy-row__error { display: block; }
+
+.copy-row.is-error .textarea {
+  border-color: var(--color-danger-6);
+}
+
+.copy-rows__bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.copy-rows__count {
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--color-text-3);
+  font-variant-numeric: tabular-nums;
+}
