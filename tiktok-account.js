@@ -2161,7 +2161,7 @@
     if (row.clientKey && !productByClientKey(row.clientKey)) errors.push('Client key 无法匹配');
     if (row.optimizer && OPTIMIZERS.indexOf(row.optimizer) < 0) errors.push('优化师无法匹配');
     if (row.status && row.status !== '启用' && row.status !== '禁用') errors.push('状态无法匹配');
-    if (row.accountId && !row.platform && !row.clientKey && !row.optimizer && !row.status) errors.push('必填项不能为空');
+    if (row.accountId && !row.clientKey && !row.optimizer && !row.status) errors.push('必填项不能为空');
     return errors.join('；');
   }
 
