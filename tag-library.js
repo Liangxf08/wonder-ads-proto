@@ -538,7 +538,7 @@
     var groupId = state.tagForm.groupId || '';
     var ok = true;
     if (!groupId) {
-      setFormError('tagGroupItem', 'tagGroupError', '请选择所属标签组');
+      setFormError('tagGroupItem', 'tagGroupError', '请选择标签组');
       ok = false;
     } else {
       clearFormError('tagGroupItem');
