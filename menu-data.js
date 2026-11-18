@@ -41,7 +41,9 @@
     layout: icon('<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>'),
     tag: icon('<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><path d="M7 7h.01"/>'),
     copy: icon('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/>'),
-    collect: icon('<path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/>'),
+    /* 向下箭头是下载，留给下载任务。素材采集用扫描框，避免和下载抢同一枚。 */
+    download: icon('<path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/>'),
+    collect: icon('<path d="M4 8V5a1 1 0 0 1 1-1h3"/><path d="M16 4h3a1 1 0 0 1 1 1v3"/><path d="M20 16v3a1 1 0 0 1-1 1h-3"/><path d="M8 20H5a1 1 0 0 1-1-1v-3"/><circle cx="12" cy="12" r="3"/>'),
     derive: icon('<path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M21 3l-7 7"/><path d="M3 3l7 7"/><path d="M12 14v7"/><path d="M8 18h8"/>'),
     host: icon('<path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/>'),
     minis: icon('<rect x="3" y="4" width="8" height="14" rx="1.5"/><rect x="13" y="6" width="8" height="14" rx="1.5"/>'),
@@ -69,8 +71,6 @@
     'copy-library': 'copy',
     'tiktok-copy': 'tiktok',
     'material-collect': 'collect',
-    'material-derive': 'derive',
-    'smart-hosting': 'host',
     'tiktok-asset': 'tiktok',
     'tiktok-minis': 'minis',
     'tiktok-promotion': 'tiktok',
@@ -99,6 +99,7 @@
     item(21, '小游戏', 'page', 19, '产品列表', 'minis', 'MinisProduct'),
     item(22, '素材', 'nav', '', '-', 'material', 'Material'),
     item(23, '素材库', 'page', 22, '素材', 'material-library', 'MaterialLibrary'),
+    item(24, '标签库', 'page', 22, '素材', 'tag-library', 'TagLibrary'),
     item(26, '文案库', 'dir', 22, '素材', 'copy-library', 'CopyLibrary'),
     item(50, 'TikTok', 'page', 26, '文案库', 'tiktok-copy', 'TiktokCopy'),
     item(31, '资产', 'nav', '', '-', 'asset', 'Asset'),
@@ -113,8 +114,6 @@
     item(48, 'Mintegral', 'page', 42, '推广', 'mintegral-promotion', 'MintegralPromotion'),
     item(27, '工具', 'nav', '', '-', 'tool', 'Tool'),
     item(28, '素材采集', 'page', 27, '工具', 'material-collect', 'MaterialCollect'),
-    item(29, '素材衍生', 'page', 27, '工具', 'material-derive', 'MaterialDerive'),
-    item(30, '智能托管', 'page', 27, '工具', 'smart-hosting', 'SmartHosting'),
     item(49, '看板', 'nav', '', '-', 'dashboard', 'Dashboard')
   ];
 
