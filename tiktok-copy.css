@@ -2,10 +2,6 @@
 
 [hidden] { display: none !important; }
 
-.page-tabs__item {
-  color: var(--color-text-1);
-}
-
 .filter-panel,
 .data-panel { position: relative; }
 .filter-panel { z-index: 2; }

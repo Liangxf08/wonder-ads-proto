@@ -14,7 +14,6 @@
   });
 
   var GROUP_SEED = [
-    { id: 'g_sys', name: '系统标签', system: true },
     { id: 'g_lang', name: '语言' },
     { id: 'g_mix', name: '混合玩法' },
     { id: 'g_feat', name: '素材特点' },
@@ -24,8 +23,6 @@
 
   /* 每组保留 2～3 个示例标签，便于看出分组；素材迭代组无标签供删除示例 */
   var TAG_SEED = [
-    { name: '衍生', groupId: 'g_sys', materialCount: 86 },
-
     { name: '英语', groupId: 'g_lang', materialCount: 156 },
     { name: '日语', groupId: 'g_lang', materialCount: 0 },
     { name: '繁中', groupId: 'g_lang', materialCount: 64 },
@@ -59,14 +56,13 @@
   function buildGroups() {
     return GROUP_SEED.map(function (g, i) {
       var created = new Date();
-      /* 系统标签最早；素材迭代最新；其余按序介于中间 */
-      var daysAgo = g.id === 'g_sys' ? 120 : (g.id === 'g_iter' ? 1 : (100 - i * 12));
+      /* 素材迭代最新；其余按序介于中间 */
+      var daysAgo = g.id === 'g_iter' ? 1 : (100 - i * 12);
       created.setDate(created.getDate() - daysAgo);
       created.setHours(10 + (i % 6), (i * 11) % 60, 0, 0);
       return {
         id: g.id,
         name: g.name,
-        system: !!g.system,
         updater: USERS[i % USERS.length],
         updatedAt: formatDateTime(created)
       };
@@ -76,8 +72,7 @@
   function buildTags() {
     return TAG_SEED.map(function (t, i) {
       var created = new Date();
-      /* 衍生最早创建 */
-      var daysAgo = t.name === '衍生' ? 120 : (90 - i * 5);
+      var daysAgo = 90 - i * 5;
       created.setDate(created.getDate() - Math.max(2, daysAgo));
       created.setHours(9 + (i % 8), (i * 7) % 60, 0, 0);
       var id = 't' + (tagSeq++);
@@ -93,7 +88,7 @@
     }).sort(byUpdatedAtDesc);
   }
 
-  /* 创建/更新时间降序：最新在前，系统标签 / 衍生（最早）在末行 */
+  /* 创建/更新时间降序：最新在前 */
   function byUpdatedAtDesc(a, b) {
     if (a.updatedAt > b.updatedAt) return -1;
     if (a.updatedAt < b.updatedAt) return 1;
@@ -114,19 +109,6 @@
   function groupNameById(id) {
     var hit = findGroup(id);
     return hit ? hit.name : '-';
-  }
-
-  function isSystemGroup(id) {
-    var g = findGroup(id);
-    return !!(g && g.system);
-  }
-
-  function isSystemTag(row) {
-    return !!(row && isSystemGroup(row.groupId));
-  }
-
-  function customGroups() {
-    return ALL_GROUPS.filter(function (g) { return !g.system; });
   }
 
   function syncTagGroupNames() {
@@ -190,12 +172,8 @@
 
   function selectedTagIds() {
     return Object.keys(state.tag.selected).filter(function (id) {
-      return state.tag.selected[id] && !isSystemTag(findTag(id));
+      return state.tag.selected[id];
     });
-  }
-
-  function selectableTagRows(rows) {
-    return (rows || []).filter(function (row) { return !isSystemTag(row); });
   }
 
   function updateBatchBtn() {
@@ -212,7 +190,7 @@
   function syncTagCheckAll(pageRows) {
     var checkAll = $('tagCheckAll');
     if (!checkAll) return;
-    var selectable = selectableTagRows(pageRows);
+    var selectable = pageRows || [];
     if (!selectable.length) {
       checkAll.checked = false;
       checkAll.indeterminate = false;
@@ -257,32 +235,99 @@
     if (item) item.classList.remove('is-error');
   }
 
-  function renderCustomGroupOptions(panelId, includeEmpty) {
-    var panel = $(panelId);
-    if (!panel) return;
-    var html = includeEmpty
-      ? '<button class="single-option" type="button" data-value="">全部</button>'
-      : '';
-    html += (includeEmpty ? ALL_GROUPS : customGroups()).map(function (g) {
-      return '<button class="single-option" type="button" data-value="' + escapeHtml(g.id) + '">' +
-        escapeHtml(g.name) + '</button>';
-    }).join('');
-    panel.innerHTML = html;
+  function bindGroupSelect(cfg) {
+    var wrap = $(cfg.wrapId);
+    var trigger = $(cfg.triggerId);
+    var panel = $(cfg.panelId);
+    var label = $(cfg.labelId);
+    var list = $(cfg.listId);
+    var search = $(cfg.searchId);
+    if (!wrap || !trigger || !panel || !label || !list) return null;
+
+    function currentValue() {
+      return cfg.getValue ? (cfg.getValue() || '') : '';
+    }
+
+    function syncLabel() {
+      var value = currentValue();
+      var prefix = cfg.prefix || '';
+      var name = value ? groupNameById(value) : '';
+      if (!value || name === '-') {
+        label.innerHTML = prefix + '<span class="muted">请选择</span>';
+        wrap.classList.remove('has-value');
+        return;
+      }
+      label.innerHTML = prefix + escapeHtml(name);
+      wrap.classList.add('has-value');
+    }
+
+    function render() {
+      var kw = ((search && search.value) || '').trim().toLowerCase();
+      var value = currentValue();
+      var items = ALL_GROUPS.filter(function (g) {
+        return !kw || g.name.toLowerCase().indexOf(kw) !== -1;
+      });
+      if (!items.length) {
+        list.innerHTML = '<div class="single-panel__empty">暂无数据</div>';
+        return;
+      }
+      list.innerHTML = items.map(function (g) {
+        var active = g.id === value ? ' is-active' : '';
+        return '<button class="single-option' + active + '" type="button" data-value="' + escapeHtml(g.id) + '">' +
+          escapeHtml(g.name) + '</button>';
+      }).join('');
+    }
+
+    trigger.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (trigger.disabled || trigger.classList.contains('is-disabled')) return;
+      var open = !panel.classList.contains('is-open');
+      UI.closePanels();
+      if (!open) return;
+      if (search) search.value = '';
+      render();
+      panel.classList.add('is-open');
+      trigger.classList.add('is-open');
+      if (UI.adjustDropdownPlacement) UI.adjustDropdownPlacement(panel, trigger);
+      if (search) search.focus();
+    });
+
+    if (search) {
+      search.addEventListener('click', function (e) { e.stopPropagation(); });
+      search.addEventListener('input', render);
+    }
+
+    list.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var opt = e.target.closest('.single-option');
+      if (!opt) return;
+      var value = opt.getAttribute('data-value') || '';
+      if (cfg.onChange) cfg.onChange(value);
+      syncLabel();
+      UI.closePanels();
+    });
+
+    if (cfg.clearId) {
+      var clearBtn = $(cfg.clearId);
+      if (clearBtn) {
+        clearBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          if (cfg.onChange) cfg.onChange('');
+          syncLabel();
+          UI.closePanels();
+        });
+      }
+    }
+
+    wrap.addEventListener('click', function (e) { e.stopPropagation(); });
+    syncLabel();
+    return { refresh: function () { render(); syncLabel(); } };
   }
 
   function refreshGroupSelectPanels() {
-    renderCustomGroupOptions('filterTagGroupPanel', true);
-    renderCustomGroupOptions('tagFormGroupPanel', false);
-    renderCustomGroupOptions('batchGroupPanel', false);
-    if (tagGroupApi && tagGroupApi.syncLabel) {
-      tagGroupApi.syncLabel(state.tag.draft.groupId || '');
-    }
-    if (tagFormGroupApi && tagFormGroupApi.syncLabel) {
-      tagFormGroupApi.syncLabel(state.tagForm.groupId || '');
-    }
-    if (batchGroupApi && batchGroupApi.syncLabel) {
-      batchGroupApi.syncLabel(state.batchGroupId || '');
-    }
+    if (tagGroupApi && tagGroupApi.refresh) tagGroupApi.refresh();
+    if (tagFormGroupApi && tagFormGroupApi.refresh) tagFormGroupApi.refresh();
+    if (batchGroupApi && batchGroupApi.refresh) batchGroupApi.refresh();
   }
 
   function renderTagTable() {
@@ -296,16 +341,12 @@
     var empty = $('tagEmptyTip');
     if (!body) return;
     body.innerHTML = pageRows.map(function (row) {
-      var system = isSystemTag(row);
-      if (system) delete state.tag.selected[row.id];
-      var checked = !system && state.tag.selected[row.id] ? ' checked' : '';
-      var canDelete = !system && !(row.materialCount > 0);
-      var editDisabled = system;
+      var checked = state.tag.selected[row.id] ? ' checked' : '';
+      var canDelete = !(row.materialCount > 0);
       return '<tr data-id="' + escapeHtml(row.id) + '">' +
         '<td class="col-check">' +
           '<label class="cell-check">' +
-            '<input type="checkbox" data-tag-check="' + escapeHtml(row.id) + '"' + checked +
-              (system ? ' disabled title="系统标签不可选择"' : '') + ' />' +
+            '<input type="checkbox" data-tag-check="' + escapeHtml(row.id) + '"' + checked + ' />' +
           '</label>' +
         '</td>' +
         '<td>' + escapeHtml(row.name) + '</td>' +
@@ -316,12 +357,8 @@
         '<td class="col-action">' +
           actionLinksHtml({
             prefix: 'tag',
-            editDisabled: editDisabled,
-            editTitle: editDisabled ? '系统标签不可编辑' : '',
             deleteDisabled: !canDelete,
-            deleteTitle: system
-              ? '系统标签不可删除'
-              : (row.materialCount > 0 ? '已关联素材，不可删除' : '')
+            deleteTitle: row.materialCount > 0 ? '已关联素材，不可删除' : ''
           }) +
         '</td>' +
       '</tr>';
@@ -368,8 +405,7 @@
     if (!body) return;
     body.innerHTML = pageRows.map(function (row) {
       var count = countTagsInGroup(row.id);
-      var system = !!row.system;
-      var canDelete = !system && !(count > 0);
+      var canDelete = !(count > 0);
       return '<tr data-id="' + escapeHtml(row.id) + '">' +
         '<td>' + escapeHtml(row.name) + '</td>' +
         '<td class="num-cell">' + count + '</td>' +
@@ -378,12 +414,8 @@
         '<td class="col-action">' +
           actionLinksHtml({
             prefix: 'group',
-            editDisabled: system,
-            editTitle: system ? '系统标签组不可编辑' : '',
             deleteDisabled: !canDelete,
-            deleteTitle: system
-              ? '系统标签组不可删除'
-              : (count > 0 ? '已关联标签，不可删除' : '')
+            deleteTitle: count > 0 ? '已关联标签，不可删除' : ''
           }) +
         '</td>' +
       '</tr>';
@@ -458,10 +490,7 @@
     }
     if (state.groupForm.mode === 'edit') {
       var row = findGroup(state.groupForm.id);
-      if (!row || row.system) {
-        UI.showToast('系统标签组不可编辑', 'error');
-        return;
-      }
+      if (!row) return;
       row.name = name;
       row.updater = CURRENT_USER;
       row.updatedAt = nowText();
@@ -476,7 +505,6 @@
     ALL_GROUPS.push({
       id: 'g_custom_' + (++groupSeq),
       name: name,
-      system: false,
       updater: CURRENT_USER,
       updatedAt: nowText()
     });
@@ -499,29 +527,27 @@
       $('tagFormTitle').textContent = mode === 'edit' ? '编辑标签' : '添加标签';
     }
     if ($('tagNameInput')) $('tagNameInput').value = row ? row.name : '';
-    renderCustomGroupOptions('tagFormGroupPanel', false);
-    if (tagFormGroupApi && tagFormGroupApi.syncLabel) {
-      tagFormGroupApi.syncLabel(state.tagForm.groupId || '');
-    }
+    if (tagFormGroupApi && tagFormGroupApi.refresh) tagFormGroupApi.refresh();
     UI.openModal('tagFormModal');
-    if ($('tagNameInput')) $('tagNameInput').focus();
+    if (mode === 'edit' && $('tagNameInput')) $('tagNameInput').focus();
+    else if ($('tagFormGroupTrigger')) $('tagFormGroupTrigger').focus();
   }
 
   function submitTagForm() {
     var name = (($('tagNameInput') && $('tagNameInput').value) || '').trim();
     var groupId = state.tagForm.groupId || '';
     var ok = true;
+    if (!groupId) {
+      setFormError('tagGroupItem', 'tagGroupError', '请选择所属标签组');
+      ok = false;
+    } else {
+      clearFormError('tagGroupItem');
+    }
     if (!name) {
       setFormError('tagNameItem', 'tagNameError', '请输入标签名称');
       ok = false;
     } else {
       clearFormError('tagNameItem');
-    }
-    if (!groupId || isSystemGroup(groupId)) {
-      setFormError('tagGroupItem', 'tagGroupError', '请选择所属标签组');
-      ok = false;
-    } else {
-      clearFormError('tagGroupItem');
     }
     if (!ok) return;
 
@@ -535,10 +561,7 @@
 
     if (state.tagForm.mode === 'edit') {
       var row = findTag(state.tagForm.id);
-      if (!row || isSystemTag(row)) {
-        UI.showToast('系统标签不可编辑', 'error');
-        return;
-      }
+      if (!row) return;
       row.name = name;
       row.groupId = groupId;
       row.groupName = groupNameById(groupId);
@@ -612,13 +635,12 @@
     state.batchTagIds = ids.slice();
     state.batchGroupId = '';
     clearFormError('batchGroupItem');
-    renderCustomGroupOptions('batchGroupPanel', false);
-    if (batchGroupApi && batchGroupApi.syncLabel) batchGroupApi.syncLabel('');
+    if (batchGroupApi && batchGroupApi.refresh) batchGroupApi.refresh();
     UI.openModal('batchGroupModal');
   }
 
   function submitBatchGroup() {
-    if (!state.batchGroupId || isSystemGroup(state.batchGroupId)) {
+    if (!state.batchGroupId) {
       setFormError('batchGroupItem', 'batchGroupError', '请选择标签组');
       return;
     }
@@ -626,7 +648,7 @@
     var gName = groupNameById(state.batchGroupId);
     ids.forEach(function (id) {
       var row = findTag(id);
-      if (!row || isSystemTag(row)) return;
+      if (!row) return;
       row.groupId = state.batchGroupId;
       row.groupName = gName;
       row.updater = CURRENT_USER;
@@ -641,54 +663,48 @@
   }
 
   /* —— 绑定 —— */
-  if (UI.bindSingleSelect && $('filterTagGroupWrap')) {
-    renderCustomGroupOptions('filterTagGroupPanel', true);
-    tagGroupApi = UI.bindSingleSelect({
-      wrapId: 'filterTagGroupWrap',
-      triggerId: 'filterTagGroupTrigger',
-      panelId: 'filterTagGroupPanel',
-      labelId: 'filterTagGroupLabel',
-      clearId: 'filterTagGroupClear',
-      prefix: '标签组：',
-      getValue: function () { return state.tag.draft.groupId; },
-      formatValue: function (v) { return v ? groupNameById(v) : ''; },
-      onChange: function (v) { state.tag.draft.groupId = v || ''; }
-    });
-  }
+  tagGroupApi = bindGroupSelect({
+    wrapId: 'filterTagGroupWrap',
+    triggerId: 'filterTagGroupTrigger',
+    panelId: 'filterTagGroupPanel',
+    labelId: 'filterTagGroupLabel',
+    listId: 'filterTagGroupList',
+    searchId: 'filterTagGroupSearch',
+    clearId: 'filterTagGroupClear',
+    prefix: '标签组：',
+    getValue: function () { return state.tag.draft.groupId; },
+    onChange: function (v) { state.tag.draft.groupId = v || ''; }
+  });
 
-  if (UI.bindSingleSelect && $('tagFormGroupWrap')) {
-    renderCustomGroupOptions('tagFormGroupPanel', false);
-    tagFormGroupApi = UI.bindSingleSelect({
-      wrapId: 'tagFormGroupWrap',
-      triggerId: 'tagFormGroupTrigger',
-      panelId: 'tagFormGroupPanel',
-      labelId: 'tagFormGroupLabel',
-      clearId: 'tagFormGroupClear',
-      getValue: function () { return state.tagForm.groupId; },
-      formatValue: function (v) { return v ? groupNameById(v) : ''; },
-      onChange: function (v) {
-        state.tagForm.groupId = v || '';
-        clearFormError('tagGroupItem');
-      }
-    });
-  }
+  tagFormGroupApi = bindGroupSelect({
+    wrapId: 'tagFormGroupWrap',
+    triggerId: 'tagFormGroupTrigger',
+    panelId: 'tagFormGroupPanel',
+    labelId: 'tagFormGroupLabel',
+    listId: 'tagFormGroupList',
+    searchId: 'tagFormGroupSearch',
+    clearId: 'tagFormGroupClear',
+    getValue: function () { return state.tagForm.groupId; },
+    onChange: function (v) {
+      state.tagForm.groupId = v || '';
+      clearFormError('tagGroupItem');
+    }
+  });
 
-  if (UI.bindSingleSelect && $('batchGroupWrap')) {
-    renderCustomGroupOptions('batchGroupPanel', false);
-    batchGroupApi = UI.bindSingleSelect({
-      wrapId: 'batchGroupWrap',
-      triggerId: 'batchGroupTrigger',
-      panelId: 'batchGroupPanel',
-      labelId: 'batchGroupLabel',
-      clearId: 'batchGroupClear',
-      getValue: function () { return state.batchGroupId; },
-      formatValue: function (v) { return v ? groupNameById(v) : ''; },
-      onChange: function (v) {
-        state.batchGroupId = v || '';
-        clearFormError('batchGroupItem');
-      }
-    });
-  }
+  batchGroupApi = bindGroupSelect({
+    wrapId: 'batchGroupWrap',
+    triggerId: 'batchGroupTrigger',
+    panelId: 'batchGroupPanel',
+    labelId: 'batchGroupLabel',
+    listId: 'batchGroupList',
+    searchId: 'batchGroupSearch',
+    clearId: 'batchGroupClear',
+    getValue: function () { return state.batchGroupId; },
+    onChange: function (v) {
+      state.batchGroupId = v || '';
+      clearFormError('batchGroupItem');
+    }
+  });
 
   if (UI.bindInputClearable) {
     UI.bindInputClearable({ wrapId: 'filterTagNameWrap', clearId: 'filterTagNameClear' });
@@ -788,10 +804,6 @@
       var start = (state.tag.page - 1) * state.tag.pageSize;
       var pageRows = rows.slice(start, start + state.tag.pageSize);
       pageRows.forEach(function (row) {
-        if (isSystemTag(row)) {
-          delete state.tag.selected[row.id];
-          return;
-        }
         if (checked) state.tag.selected[row.id] = true;
         else delete state.tag.selected[row.id];
       });
@@ -820,18 +832,10 @@
       var row = findTag(id);
       if (!row) return;
       if (act === 'edit') {
-        if (isSystemTag(row)) {
-          UI.showToast('系统标签不可编辑', 'error');
-          return;
-        }
         openTagForm('edit', row);
         return;
       }
       if (act === 'delete') {
-        if (isSystemTag(row)) {
-          UI.showToast('系统标签不可删除', 'error');
-          return;
-        }
         if (row.materialCount > 0) {
           UI.showToast('已关联素材，不可删除', 'error');
           return;
@@ -854,18 +858,10 @@
       var row = findGroup(id);
       if (!row) return;
       if (act === 'edit') {
-        if (row.system) {
-          UI.showToast('系统标签组不可编辑', 'error');
-          return;
-        }
         openGroupForm('edit', row);
         return;
       }
       if (act === 'delete') {
-        if (row.system) {
-          UI.showToast('系统标签组不可删除', 'error');
-          return;
-        }
         if (countTagsInGroup(id) > 0) {
           UI.showToast('已关联标签，不可删除', 'error');
           return;

@@ -29,8 +29,6 @@
 
 .filter-gear svg { width: 16px; height: 16px; }
 
-.page-tabs__item { color: var(--color-text-1); }
-
 .data-table th.num .th-sort {
   width: 100%;
   justify-content: flex-end;

@@ -27,6 +27,12 @@
   width: 100%;
 }
 
+.single-panel__search input {
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--color-text-1, #1D2129);
+}
+
 .link--danger {
   color: var(--color-danger-6, #F53F3F);
 }
