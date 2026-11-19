@@ -1,5 +1,5 @@
 /* 投放系统 · 资产 / TikTok / Mini 列表
- * 账户与广告账户页示例对齐。Mini 由后台同步，本页只查询。
+ * 账户与广告账户页示例对齐。查询只筛本地列表。非自动更新时段可点同步，提交拉取后按钮置灰，结果返回再恢复。
  */
 (function () {
   'use strict';
@@ -242,7 +242,28 @@
     renderTable();
   }
 
+  var syncing = false;
+
+  function setSyncLocked(locked) {
+    var btn = UI.$('syncBtn');
+    syncing = locked;
+    if (!btn) return;
+    btn.disabled = locked;
+    if (locked) btn.setAttribute('aria-busy', 'true');
+    else btn.removeAttribute('aria-busy');
+  }
+
+  function doSync() {
+    if (syncing) return;
+    setSyncLocked(true);
+    UI.showToast('同步任务执行中，请稍后刷新');
+    window.setTimeout(function () {
+      setSyncLocked(false);
+    }, 1500);
+  }
+
   UI.$('queryBtn').addEventListener('click', doQuery);
+  UI.$('syncBtn').addEventListener('click', doSync);
   UI.$('resetBtn').addEventListener('click', doReset);
   UI.$('accountKeyword').addEventListener('keydown', function (e) { if (e.key === 'Enter') doQuery(); });
   UI.$('miniKeyword').addEventListener('keydown', function (e) { if (e.key === 'Enter') doQuery(); });
