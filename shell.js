@@ -429,13 +429,19 @@
     }
   }
 
+  /** 进入这些页时侧栏默认收起 */
+  var DEFAULT_COLLAPSED_PAGES = {
+    'material-library': true
+  };
+
   function mount(activeKey) {
     if (activeKey) pageKey = activeKey;
-    captureState();
-    var page = resolve(pageKey);
-    var root = document.getElementById('appShell') || document.querySelector('.app');
     var existingHeader = document.querySelector('header.header');
     var existingSidebar = document.getElementById('sidebar');
+    captureState();
+    if (DEFAULT_COLLAPSED_PAGES[pageKey]) keepCollapsed = true;
+    var page = resolve(pageKey);
+    var root = document.getElementById('appShell') || document.querySelector('.app');
     var sideHtml = renderSidebar(page);
 
     if (root && !existingHeader) {

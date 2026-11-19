@@ -178,3 +178,41 @@ img.menu-icon {
 
 /* 排序只点亮箭头，表头文字保持原色 */
 .th-sort.is-active { color: inherit; }
+
+/* ========== 筛选设置（投放系统公共） ==========
+ * 页面筛选栏：日期 280 / 其它 200（product-common .filter-item / .filter-item--date）
+ * 筛选设置弹窗：Large 1020；控件统一 280（含日期）
+ */
+.modal--filter-settings {
+  width: var(--modal-width-large, 1020px);
+  max-width: calc(100vw - 32px);
+  overflow: visible;
+}
+
+.modal--filter-settings .modal__body {
+  padding: var(--size-6, 24px);
+  overflow: visible;
+}
+
+.modal--filter-settings .filter-check-grid {
+  overflow: visible;
+}
+
+.filter-setting-control {
+  position: relative;
+  width: 280px;
+  flex: 0 0 280px;
+}
+
+.filter-setting-control--date {
+  width: 280px;
+  flex-basis: 280px;
+}
+
+.filter-setting-control .select-trigger,
+.filter-setting-control .date-range-trigger,
+.filter-setting-control .select-trigger--input {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: var(--font-size-body-2, 14px);
+}

@@ -174,15 +174,7 @@
   white-space: nowrap;
 }
 
-.modal--filter-settings {
-  width: var(--modal-width);
-  overflow: visible;
-}
-
-.modal--filter-settings .modal__body {
-  padding: var(--size-6);
-  overflow: visible;
-}
+/* 弹窗宽 / 控件 280：见 shell.css 投放系统公共筛选设置 */
 
 .filter-check-grid {
   display: flex;
@@ -210,19 +202,6 @@
 }
 
 .filter-setting-item:has(.is-open) { z-index: 30; }
-
-.filter-setting-control {
-  position: relative;
-  width: 200px;
-  flex: 0 0 200px;
-}
-
-.filter-setting-control .select-trigger,
-.filter-setting-control .select-trigger--input {
-  width: 100%;
-  box-sizing: border-box;
-  font-size: var(--font-size-body-2);
-}
 
 .filter-setting-control .select-trigger--input { min-width: 0; }
 
