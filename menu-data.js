@@ -47,12 +47,7 @@
     derive: icon('<path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M21 3l-7 7"/><path d="M3 3l7 7"/><path d="M12 14v7"/><path d="M8 18h8"/>'),
     host: icon('<path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/>'),
     minis: icon('<rect x="3" y="4" width="8" height="14" rx="1.5"/><rect x="13" y="6" width="8" height="14" rx="1.5"/>'),
-    tiktok: '素材/菜单图标/tiktok.png',
-    unity: '素材/菜单图标/unity.png',
-    applovin: '素材/菜单图标/applovin.png',
-    meta: '素材/菜单图标/meta.png',
-    google: '素材/菜单图标/googleAds.png',
-    mintegral: '素材/菜单图标/mintegral.png'
+    tiktok: '素材/菜单图标/tiktok.png'
   };
 
   var iconByPath = {
@@ -73,12 +68,7 @@
     'material-collect': 'collect',
     'tiktok-asset': 'tiktok',
     'tiktok-minis': 'minis',
-    'tiktok-promotion': 'tiktok',
-    'unity-promotion': 'unity',
-    'applovin-promotion': 'applovin',
-    'meta-promotion': 'meta',
-    'google-promotion': 'google',
-    'mintegral-promotion': 'mintegral'
+    'tiktok-promotion': 'tiktok'
   };
 
   var rows = [
@@ -107,11 +97,6 @@
     item(34, 'Mini 列表', 'page', 32, 'TikTok', 'tiktok-minis', 'TiktokMinis'),
     item(42, '推广', 'nav', '', '-', 'promotion', 'Promotion'),
     item(43, 'TikTok', 'page', 42, '推广', 'tiktok-promotion', 'TiktokPromotion'),
-    item(44, 'Unity', 'page', 42, '推广', 'unity-promotion', 'UnityPromotion'),
-    item(45, 'AppLovin', 'page', 42, '推广', 'applovin-promotion', 'ApplovinPromotion'),
-    item(46, 'Meta', 'page', 42, '推广', 'meta-promotion', 'MetaPromotion'),
-    item(47, 'Google', 'page', 42, '推广', 'google-promotion', 'GooglePromotion'),
-    item(48, 'Mintegral', 'page', 42, '推广', 'mintegral-promotion', 'MintegralPromotion'),
     item(27, '工具', 'nav', '', '-', 'tool', 'Tool'),
     item(28, '素材采集', 'page', 27, '工具', 'material-collect', 'MaterialCollect'),
     item(49, '看板', 'nav', '', '-', 'dashboard', 'Dashboard')

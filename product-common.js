@@ -556,6 +556,19 @@
     function syncLabel() {
       var selected = getSelected();
       var prefix = cfg.prefix || '';
+      if (typeof cfg.formatTriggerLabel === 'function') {
+        var custom = cfg.formatTriggerLabel(selected);
+        if (custom != null) {
+          label.innerHTML = custom;
+          wrap.classList.toggle('has-value', selected.length > 0);
+          if (countEl) {
+            countEl.textContent = typeof cfg.formatSelectedCount === 'function'
+              ? cfg.formatSelectedCount(selected.length)
+              : ('已选择 ' + selected.length + ' 项');
+          }
+          return;
+        }
+      }
       if (!selected.length) {
         label.innerHTML = prefix + '<span class="muted">请选择</span>';
         wrap.classList.remove('has-value');
@@ -745,6 +758,12 @@
     });
   }
 
+  var defaultPageSizes = [10, 20, 50, 100];
+
+  function setDefaultPageSizes(sizes) {
+    if (Array.isArray(sizes) && sizes.length) defaultPageSizes = sizes.slice();
+  }
+
   function renderPagination(cfg) {
     var el = $(cfg.containerId);
     if (!el) return;
@@ -766,6 +785,8 @@
       return '<button class="pager__btn' + (p === page ? ' is-active' : '') + '" type="button" data-page="' + p + '">' + p + '</button>';
     }).join('');
 
+    var sizeOptions = cfg.pageSizes || defaultPageSizes;
+
     el.innerHTML =
       '<span class="pagination__total">共 ' + total + ' 条</span>' +
       '<div class="page-size-wrap">' +
@@ -774,7 +795,7 @@
           '<svg class="select-trigger__arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5L6 7.5L9 4.5"/></svg>' +
         '</button>' +
         '<div class="single-panel">' +
-          [10, 20, 50, 100].map(function (n) {
+          sizeOptions.map(function (n) {
             return '<div class="single-option' + (n === pageSize ? ' is-active' : '') + '" data-size="' + n + '">' + n + ' 条/页</div>';
           }).join('') +
         '</div>' +
@@ -1156,10 +1177,21 @@
       syncDateLabel();
     }
 
+    function clear(silent) {
+      rangeStart = null;
+      rangeEnd = null;
+      pickingStart = null;
+      activeShortcut = '';
+      syncDateLabel();
+      syncShortcutActive();
+      if (!silent) notifyChange();
+    }
+
     return {
       getStart: function () { return rangeStart; },
       getEnd: function () { return rangeEnd; },
       setRange: setRange,
+      clear: clear,
       open: openDatePanel,
       close: closeDatePanel
     };
@@ -1735,6 +1767,7 @@
     bindSeg: bindSeg,
     getSegValue: getSegValue,
     setSegValue: setSegValue,
+    setDefaultPageSizes: setDefaultPageSizes,
     renderPagination: renderPagination,
     bindPagination: bindPagination,
     COPY_ICON: COPY_ICON,
