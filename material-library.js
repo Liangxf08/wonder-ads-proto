@@ -426,120 +426,22 @@
     return countMaterialsInFolder(nodeId) === 0;
   }
 
-  function randInt(min, max) {
-    return min + Math.floor(Math.random() * (max - min + 1));
-  }
-
   function buildMockRows() {
-    var folderIds = listCustomFolderIds();
-    var syncCycle = ['已同步', '已同步', '未同步', '同步失败', '已同步'];
-    var types = ['视频', '视频', '视频', '图片'];
-    var list = [];
-    var today = startOfDay(new Date());
-    var i = 0;
-    folderIds.forEach(function (folderId) {
-      var isDerivedFolder = folderId === 'cube_derived';
-      var count = isDerivedFolder ? 20 : randInt(10, 50);
-      var c;
-      for (c = 0; c < count; c++, i++) {
-        var created = new Date(today);
-        created.setDate(created.getDate() - (i % 20));
-        created.setHours(9 + (i % 8), (i * 7) % 60, (i * 11) % 60, 0);
-        var type = pick(types, i);
-        var format = type === '视频' ? pick(['mp4', 'mov'], i) : pick(['png', 'jpg', 'gif'], i);
-        /* TikTok 视频素材以 1080x1920 为主；示例数据统一该尺寸，便于详情预览按 360×640 展示 */
-        var size = '1080x1920';
-        var durationSec = type === '视频'
-          ? pick([3, 5, 10, 12, 20, 28, 40, 55, 75, 90], i)
-          : 0;
-        var sync = pick(syncCycle, i);
-        var delivery = [];
-        if (i % 2 === 0) delivery.push('tt');
-        if (i % 3 === 0) delivery.push('fb');
-        if (i % 4 === 0) delivery.push('gg');
-        if (i % 7 === 0) delivery.push('ap');
-        /* 关联广告数 / 消耗先定，再反推系统标签 */
-        var adCount = (i % 9 === 0) ? 0 : (1 + (i % 18));
-        var impressions = 0;
-        var clicks = 0;
-        var spend = 0;
-        var conversions = 0;
-        if (adCount > 0) {
-          impressions = 8000 + (i * 137) % 92000;
-          clicks = Math.max(1, Math.floor(impressions * (0.008 + (i % 7) * 0.002)));
-          /* 约每 11 条「已使用」中留 1 条无消耗 */
-          if (i % 11 !== 0) {
-            spend = Math.round((clicks * (0.18 + (i % 5) * 0.07)) * 100) / 100;
-          }
-          conversions = Math.floor(clicks * (0.02 + (i % 4) * 0.01));
-        }
-        var videoViews = type === '视频' && impressions ? Math.floor(impressions * (0.55 + (i % 5) * 0.06)) : 0;
-        var videoP25 = type === '视频' ? Math.floor(videoViews * 0.82) : 0;
-        var videoP50 = type === '视频' ? Math.floor(videoViews * 0.61) : 0;
-        var videoP75 = type === '视频' ? Math.floor(videoViews * 0.38) : 0;
-        var videoP100 = type === '视频' ? Math.floor(videoViews * 0.22) : 0;
-        var tags = [];
-        /* 衍生：仅素材衍生任务产出（示例：Cube Out「衍生」文件夹） */
-        if (isDerivedFolder) tags.push('衍生');
-        /* 未使用 / 已使用：关联广告数 =0 / >0 */
-        tags.push(adCount === 0 ? '未使用' : '已使用');
-        /* 无消耗 / 有消耗：消耗 =0 / >0 */
-        tags.push(spend > 0 ? '有消耗' : '无消耗');
-        if (i % 2 === 0) tags.push(pick(['英语', '繁中', '日语'], i));
-        if (i % 3 === 0) tags.push(pick(['消消乐', '清理', '保护系列'], i + 1));
-        if (i % 5 === 0) tags.push(pick(['CTR', '副玩法', 'DOGE'], i + 2));
-        if (i % 7 === 0) tags.push(pick(['圣诞节', '夏日'], i + 3));
-        tags = tags.filter(function (t, idx) { return tags.indexOf(t) === idx; });
-        var creator = pick(USERS, i + 2);
-        /* 素材名称：{序号}_{创意人}_{尺寸}_{时长}_{YYYYMMDD} */
-        var nameStem = [
-          String(1000 + i),
-          creator,
-          size,
-          String(type === '视频' ? durationSec : 0),
-          formatDateCompact(created)
-        ].join('_');
-        var row = {
-          id: String(materialSeq++),
-          name: nameStem + '.' + format,
-          folderId: folderId,
-          type: type,
-          format: format,
-          size: size,
-          durationSec: durationSec,
-          tags: tags,
-          creator: creator,
-          createdAt: formatDateTime(created),
-          createdDate: formatDateYMD(created),
-          createdTs: created.getTime(),
-          status: i % 11 === 0 ? '禁用' : '启用',
-          syncStatus: sync,
-          xmpId: sync === '已同步' ? 'XMP' + (5000 + i) : '',
-          mediaId: 'md' + String(1000001 + i),
-          failReason: sync === '同步失败' ? 'XMP 限流' : '',
-          delivery: delivery,
-          source: sourceForFolder(folderId),
-          adCount: adCount,
-          rejectCount: i % 5 === 0 ? (i % 4) : 0,
-          spend: spend,
-          impressions: impressions,
-          clicks: clicks,
-          conversions: conversions,
-          videoViews: videoViews,
-          videoP25: videoP25,
-          videoP50: videoP50,
-          videoP75: videoP75,
-          videoP100: videoP100,
-          ossUrl: ''
-        };
-        row.ossUrl = buildOssUrl(row.name, created, row.id, format);
-        list.push(row);
-      }
-    });
-    return list;
+    if (window.MaterialSeedData && typeof window.MaterialSeedData.buildRows === 'function') {
+      return window.MaterialSeedData.buildRows();
+    }
+    return [];
   }
 
   var ALL_ROWS = buildMockRows();
+  if (ALL_ROWS.length) {
+    var maxId = 0;
+    ALL_ROWS.forEach(function (r) {
+      var n = Number(r.id) || 0;
+      if (n > maxId) maxId = n;
+    });
+    materialSeq = maxId + 1;
+  }
 
   function buildDefaultCollapsed() {
     var map = {};
