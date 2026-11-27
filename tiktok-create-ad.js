@@ -524,8 +524,12 @@
       return LANGUAGE_OPTIONS.indexOf(name) >= 0;
     });
 
-    if (!Array.isArray(state.placementVersions) || !state.placementVersions.length) {
+    if (!Array.isArray(state.placementVersions)) {
       state.placementVersions = ['TikTok'];
+    } else {
+      state.placementVersions = state.placementVersions.filter(function (name) {
+        return PLACEMENT_VERSION_OPTIONS.indexOf(name) >= 0;
+      });
     }
     ensureScheduleSlots();
     return true;
@@ -1807,7 +1811,10 @@
       prefix: '',
       getOptions: function () { return PLACEMENT_VERSION_OPTIONS.slice(); },
       getSelected: function () { return state.placementVersions; },
-      setSelected: function (arr) { state.placementVersions = arr.slice(); }
+      setSelected: function (arr) {
+        state.placementVersions = (arr || []).slice();
+        if (state.placementVersions.length) setFormItemError('placementVersionItem', false);
+      }
     });
     if (placementVersionMulti) placementVersionMulti.render();
 
@@ -6468,6 +6475,7 @@
       'campaignNameItem', 'campaignBudgetItem',
       'deliveryAdGroupNameItem', 'deliveryMiniItem',
       'bidBudgetItem', 'bidTargetRoasItem',
+      'placementVersionItem',
       'adNameItem', 'adTtUnifiedItem', 'adTtByAccountItem',
       'adCopyItem', 'adCtaItem', 'adLandingItem',
       'creativeSelectItem'
@@ -6557,6 +6565,9 @@
       if (!roasRaw) {
         return failCreateAdRequired('bidTargetRoasItem', 'bid', '请输入目标ROAS');
       }
+    }
+    if (!(state.placementVersions && state.placementVersions.length)) {
+      return failCreateAdRequired('placementVersionItem', 'placement', '请选择广告位');
     }
 
     var adName = String(state.adName || ($('adName') && $('adName').value) || '').trim();
