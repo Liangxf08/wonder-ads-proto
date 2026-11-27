@@ -4796,4 +4796,5 @@
   syncOptionalVisibility();
   syncBatchMenu();
   applyQuery();
+  consumePendingToast();
 })();

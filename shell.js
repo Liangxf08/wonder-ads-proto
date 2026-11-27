@@ -230,9 +230,15 @@
     return iconMarkup(icon) || '<span class="menu-icon" aria-hidden="true"></span>';
   }
 
+  /* 无独立菜单项的页面，映射到对应菜单页以高亮导航 */
+  var PAGE_ALIASES = {
+    'tiktok-create-ad': 'tiktok-promotion'
+  };
+
   function resolve(activeKey) {
     var key = activeKey || pageKey || fileKeyFromLocation();
     if (key === 'index') key = 'home';
+    if (PAGE_ALIASES[key]) key = PAGE_ALIASES[key];
     var row = findEntry(key);
     return {
       key: key,
@@ -431,7 +437,8 @@
 
   /** 进入这些页时侧栏默认收起 */
   var DEFAULT_COLLAPSED_PAGES = {
-    'material-library': true
+    'material-library': true,
+    'tiktok-create-ad': true
   };
 
   function mount(activeKey) {
@@ -462,6 +469,10 @@
       if (body && mainEl) mainEl.insertAdjacentHTML('beforebegin', sideHtml);
     }
     afterMount();
+  }
+
+  if (global.ProductUI && typeof global.ProductUI.setDefaultPageSizes === 'function') {
+    global.ProductUI.setDefaultPageSizes([10, 20, 50, 100, 500]);
   }
 
   global.DeliveryShell = {
