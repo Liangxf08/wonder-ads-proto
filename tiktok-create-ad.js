@@ -685,6 +685,7 @@
         renderAuthTable();
         syncAdAccountDependent();
         renderSplitRules();
+        if (!creativeEvenAllocMismatch()) setFormItemError('creativeSelectItem', false);
       }
     });
 
@@ -3861,7 +3862,9 @@
     var el = $('creativeSelectCount');
     if (!el) return;
     el.textContent = '（创意组数量：' + state.creativeGroups.length + '/' + CREATIVE_MAX_GROUPS + '）';
-    if (state.creativeGroups.length) setFormItemError('creativeSelectItem', false);
+    if (state.creativeGroups.length && !creativeEvenAllocMismatch()) {
+      setFormItemError('creativeSelectItem', false);
+    }
   }
 
   function stripCreativeExt(name) {
@@ -5556,6 +5559,7 @@
       state.creativeAlloc = v || '账户复用';
       syncCreativeAllocTip();
       renderSplitRules();
+      if (!creativeEvenAllocMismatch()) setFormItemError('creativeSelectItem', false);
     });
 
     var perInput = $('creativePerGroup');
@@ -6608,8 +6612,19 @@
     if (!(state.creativeGroups && state.creativeGroups.length)) {
       return failCreateAdRequired('creativeSelectItem', 'creative', '请至少添加一个创意组');
     }
+    if (creativeEvenAllocMismatch()) {
+      return failCreateAdRequired('creativeSelectItem', 'creative', '创意组数量必须是广告账户数的整倍数');
+    }
 
     return { ok: true };
+  }
+
+  function creativeEvenAllocMismatch() {
+    if (state.creativeAlloc !== '平均分配') return false;
+    var accounts = (state.selectedAccountIds && state.selectedAccountIds.length) || 0;
+    var groups = (state.creativeGroups && state.creativeGroups.length) || 0;
+    if (!accounts || !groups) return false;
+    return groups % accounts !== 0;
   }
 
   function ensureCreateAdRequiredValid() {
